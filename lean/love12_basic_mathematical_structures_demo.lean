@@ -32,7 +32,7 @@ In Lean, a type class for groups can be defined as follows: -/
 
 namespace monolithic_group
 
-@[class] structure group (α : Type) :=
+@[class] structure group (α : Type) : Type :=
 (mul          : α → α → α)
 (one          : α)
 (inv          : α → α)

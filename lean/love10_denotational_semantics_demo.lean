@@ -250,7 +250,7 @@ Nonexamples:
 * `erat := ℚ ∪ {- ∞, ∞}`: `Inf {q | 2 < q * q} = sqrt 2` is not in `erat`. -/
 
 @[class] structure complete_lattice (α : Type)
-  extends partial_order α :=
+  extends partial_order α : Type :=
 (Inf    : set α → α)
 (Inf_le : ∀A b, b ∈ A → Inf A ≤ b)
 (le_Inf : ∀A b, (∀a, a ∈ A → b ≤ a) → b ≤ Inf A)

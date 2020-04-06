@@ -207,7 +207,7 @@ Monads are a mathematical structure, so we use class to add them as a type class
 by a type—or here, by a type constructor `m : Type → Type`. -/
 
 @[class] structure lawful_monad (m : Type → Type)
-  extends has_bind m, has_pure m :=
+  extends has_bind m, has_pure m : Type 1 :=
 (pure_bind {α β : Type} (a : α) (f : α → m β) :
    (pure a >>= f) = f a)
 (bind_pure {α : Type} (ma : m α) :
@@ -227,6 +227,8 @@ by a type—or here, by a type constructor `m : Type → Type`. -/
 * The structure inherits the fields, and any syntactic sugar, from structures
   called `has_bind` and `has_pure`, which provide the `bind` and `pure`
   operations on `m` and some syntactic sugar.
+
+* `Type 1` is necessary for reasons that will become clear in lecture 11.
 
 * The definition adds three fields to those already provided by `has_bind` and
   `has_pure`, to store the proofs of the monad laws.

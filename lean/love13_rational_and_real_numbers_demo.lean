@@ -29,7 +29,7 @@ namespace LoVe
 **Step 1:** A rational number is a number that can be expressed as a fraction
 `n/d` of integers `n` and `d ≠ 0`: -/
 
-structure fraction :=
+structure fraction : Type :=
 (num           : ℤ)
 (denom         : ℤ)
 (denom_ne_zero : denom ≠ 0)

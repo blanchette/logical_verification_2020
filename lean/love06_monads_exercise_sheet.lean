@@ -16,7 +16,7 @@ operator `<|>` satisfying some laws, given below. `emp` denotes failure.
 `x <|> y` tries `x` first, falling back on `y` on failure. -/
 
 @[class] structure lawful_monad_with_orelse (m : Type → Type)
-  extends lawful_monad m, has_orelse m :=
+  extends lawful_monad m, has_orelse m : Type 1 :=
 (emp {} {α : Type} : m α)
 (emp_orelse {α : Type} (a : m α) :
   (emp <|> a) = a)

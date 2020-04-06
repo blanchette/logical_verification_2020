@@ -179,7 +179,7 @@ def rgb.blue : rgb → ℕ
 
 end rgb_as_inductive
 
-structure rgba extends rgb :=
+structure rgba extends rgb : Type :=
 (alpha : ℕ)
 
 #print rgba
@@ -232,7 +232,8 @@ Based on the type, Lean retrieves the relevant instance. -/
 @[instance] def nat.inhabited : inhabited ℕ :=
 { default := 0 }
 
-@[instance] def list.inhabited {α : Type} : inhabited (list α) :=
+@[instance] def list.inhabited {α : Type} :
+  inhabited (list α) :=
 { default := [] }
 
 #eval inhabited.default ℕ          -- result: 0
