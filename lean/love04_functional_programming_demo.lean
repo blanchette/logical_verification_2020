@@ -4,7 +4,8 @@ import .lovelib
 /-! # LoVe Demo 4: Functional Programming
 
 We take a closer look at the basics of typed functional programming: inductive
-types, pattern matching, recursive functions, and proofs by induction. -/
+types, proofs by induction, recursive functions, pattern matching, structures
+(records), and type classes. -/
 
 
 set_option pp.beta true

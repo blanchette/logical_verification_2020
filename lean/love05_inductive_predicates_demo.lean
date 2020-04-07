@@ -6,8 +6,8 @@ import .love04_functional_programming_demo
 
 __Inductive predicates__, or inductively defined propositions, are a convenient
 way to specify functions of type `⋯ → Prop`. They are reminiscent of formal
-systems and of the the Horn clauses of Prolog, the logic programming language
-par excellence.
+systems and of the Horn clauses of Prolog, the logic programming language par
+excellence.
 
 A possible view of Lean:
 
