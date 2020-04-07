@@ -250,7 +250,7 @@ def some_fun_of_type : (α → β → γ) → ((β → α) → β) → α → γ
 λf g a, f a (g (λb, a))
 
 
-## Type Definitions
+/-! ## Type Definitions
 
 An __inductive type__ (also called __inductive datatype__,
 __algebraic datatype__, or just __datatype__) is a type that consists all the
@@ -278,8 +278,6 @@ end my_nat
 #print nat
 #print ℕ
 
-namespace my_list
-
 
 /-! ### Arithmetic Expressions -/
 
@@ -293,6 +291,8 @@ inductive aexp : Type
 
 
 /-! ### Lists -/
+
+namespace my_list
 
 inductive list (α : Type) : Type
 | nil  : list
