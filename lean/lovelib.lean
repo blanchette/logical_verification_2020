@@ -1,9 +1,9 @@
 import algebra
 import data.real.basic
-import logic.basic
-import order
+import data.vector
 import tactic.explode
 import tactic.find
+import tactic.induction
 import tactic.linarith
 import tactic.rcases
 import tactic.rewrite
@@ -102,11 +102,11 @@ variables {α : Sort*} {r : α → α → Prop} {a b c d : α}
 @[trans] lemma trans (hab : star r a b) (hbc : star r b c) :
   star r a c :=
 begin
-  induction hbc,
-  case star.refl {
+  induction' hbc,
+  case refl {
     assumption },
-  case star.tail : c d hbc hcd hac {
-    exact hac.tail hcd }
+  case tail : c d hbc hcd hac {
+    exact (tail (hac hab)) hcd }
 end
 
 lemma single (hab : r a b) :
@@ -116,11 +116,11 @@ refl.tail hab
 lemma head (hab : r a b) (hbc : star r b c) :
   star r a c :=
 begin
-  induction hbc,
-  case star.refl {
-    exact refl.tail hab },
-  case star.tail : c d hbc hcd hac {
-    exact hac.tail hcd }
+  induction' hbc,
+  case refl {
+    exact (tail refl) hab },
+  case tail : c d hbc hcd hac {
+    exact (tail (hac hab)) hcd }
 end
 
 lemma head_induction_on {α : Sort*} {r : α → α → Prop} {b : α}
@@ -129,7 +129,7 @@ lemma head_induction_on {α : Sort*} {r : α → α → Prop} {b : α}
   (head : ∀{a c} (h' : r a c) (h : star r c b), P c h → P a (h.head h')) :
   P a h :=
 begin
-  induction h generalizing P,
+  induction' h,
   case star.refl {
     exact refl },
   case star.tail : b c hab hbc ih {
@@ -147,11 +147,11 @@ lemma trans_induction_on {α : Sort*} {r : α → α → Prop}
        p h₂ → p (h₁.trans h₂)) :
   p h :=
 begin
-  induction h,
+  induction' h,
   case star.refl {
     exact ih₁ a },
   case star.tail : b c hab hbc ih {
-    exact ih₃ hab (single hbc) ih (ih₂ hbc) }
+    exact ih₃ hab (single hbc) (ih ih₁ @ih₂ @ih₃) (ih₂ hbc) }
 end
 
 lemma lift {β : Sort*} {s : β → β → Prop} (f : α → β)
@@ -175,7 +175,7 @@ funext
       propext (iff.intro
         (assume h,
          begin
-           induction h,
+           induction' h,
            { refl },
            { transitivity;
                assumption }

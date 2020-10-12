@@ -1,15 +1,16 @@
 import .love07_metaprogramming_demo
 
 
-/-! # LoVe Exercise 7: Metaprogramming -/
+/- # LoVe Exercise 7: Metaprogramming -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## ## Question 1: A Term Exploder
+/- ## Question 1: A Term Exploder
 
 In this exercise, we develop a string format for the `expr` metatype. By
 default, there is no `has_repr` instance to print a nice string. For example: -/
@@ -17,7 +18,7 @@ default, there is no `has_repr` instance to print a nice string. For example: -/
 #eval (expr.app (expr.var 0) (expr.var 1) : expr)   -- result: `[external]`
 #eval (`(λx : ℕ, x + x) : expr)                     -- result: `[external]`
 
-/-! 1.1. Define a metafunction `expr.repr` that converts an `expr` into a
+/- 1.1. Define a metafunction `expr.repr` that converts an `expr` into a
 `string`. It is acceptable to leave out some fields from the `expr`
 constructors, such as the level `l` of a sort, the binder information `bi` of
 a `λ` or `∀` binder, and the arguments of the `macro` constructor.
@@ -27,30 +28,32 @@ types that belong to the `has_repr` type class. -/
 
 -- enter your definition here
 
-/-! We register `expr.repr` in the `has_repr` type class, so that we can use
+/- We register `expr.repr` in the `has_repr` type class, so that we can use
 `repr` without qualification in the future, and so that it is available to
 `#eval`. We need the `meta` keyword in front of the command we enter. -/
 
 meta instance expr.has_repr : has_repr expr :=
 { repr := expr.repr }
 
-/-! 1.2. Test your setup. -/
+/- 1.2. Test your setup. -/
 
 #eval (expr.app (expr.var 0) (expr.var 1) : expr)
 #eval (`(λx : ℕ, x + x) : expr)
 
-/-! 1.3. Compare your answer with `expr.to_raw_fmt`. -/
+/- 1.3. Compare your answer with `expr.to_raw_fmt`. -/
 
 #check expr.to_raw_fmt
 
 
-/-! ## Question 2: `destruct_and` on Steroids
+/- ## Question 2: `destruct_and` on Steroids
 
 Recall from the lecture that `destruct_and` fails on easy goals such as -/
 
-#check abc_ac
+lemma abc_ac₂ (a b c : Prop) (h : a ∧ b ∧ c) :
+  a ∧ c :=
+sorry
 
-/-! We will now address this by developing a new tactic called `destro_and`,
+/- We will now address this by developing a new tactic called `destro_and`,
 which applies both **des**truction and in**tro**duction rules for conjunction.
 It will also go automatically through the hypotheses instead of taking an
 argument. We will develop it in three steps.
@@ -109,7 +112,7 @@ begin
   repeat { sorry }
 end
 
-/-! 2.2. Develop a tactic `destruct_ands` that replaces hypotheses of the form
+/- 2.2. Develop a tactic `destruct_ands` that replaces hypotheses of the form
 `h : a ∧ b` by two new hypotheses `h_left : a` and `h_right : b` systematically,
 until all top-level conjunctions are gone.
 
@@ -149,7 +152,7 @@ begin
   sorry
 end
 
-/-! 2.3. Combine the two tactics developed above and `tactic.assumption` to
+/- 2.3. Combine the two tactics developed above and `tactic.assumption` to
 implement the desired `destro_and` tactic. -/
 
 meta def destro_and : tactic unit :=
@@ -177,13 +180,13 @@ begin
   sorry   -- unprovable
 end
 
-/-! 2.4. Provide some more examples for `destro_and` to convince yourself that
+/- 2.4. Provide some more examples for `destro_and` to convince yourself that
 it works as expected also on more complicated examples. -/
 
 -- enter your examples here
 
 
-/-! ## Question 3 (**optional**): A Theorem Finder
+/- ## Question 3 (**optional**): A Theorem Finder
 
 We will implement a function that allows us to find theorems by constants
 appearing in their statements. So given a list of constant names, the function
@@ -194,7 +197,7 @@ You can use the following metaconstants:
 * `declaration` contains all data (name, type, value) associated with a
   declaration understood broadly (e.g., axiom, lemma, constant, etc.).
 
-* `tactic.get_env` gives us access to the `environment`, a metatype thats lists
+* `tactic.get_env` gives us access to the `environment`, a metatype that lists
   all `declaration`s (including all theorems).
 
 * `environment.fold` allows us to walk through the environment and collect data.
@@ -211,7 +214,7 @@ constant. -/
 meta def term_contains (e : expr) (nam : name) : bool :=
 sorry
 
-/-! 3.2 (**optional**). Write a metafunction that checks whether an expression
+/- 3.2 (**optional**). Write a metafunction that checks whether an expression
 contains **all** constants in a list.
 
 You can use `list.band` (Boolean and). -/
@@ -219,7 +222,7 @@ You can use `list.band` (Boolean and). -/
 meta def term_contains_all (nams : list name) (e : expr) : bool :=
 sorry
 
-/-! 3.3 (**optional**). Produce the list of all theorems that contain all
+/- 3.3 (**optional**). Produce the list of all theorems that contain all
 constants `nams` in their statement.
 
 `environment.fold` allows you to walk over the list of declarations. With
@@ -229,7 +232,7 @@ constants `nams` in their statement.
 meta def list_constants (nams : list name) (e : environment) : list name :=
 sorry
 
-/-! Finally, we develop a tactic that uses the above metafunctions to log all
+/- Finally, we develop a tactic that uses the above metafunctions to log all
 found theorems: -/
 
 meta def find_constants (nams : list name) : tactic unit :=
@@ -237,7 +240,7 @@ do
   env ← tactic.get_env,
   list.mmap' tactic.trace (list_constants nams env)
 
-/-! We test the solution. -/
+/- We test the solution. -/
 
 run_cmd find_constants []   -- lists all theorems
 run_cmd find_constants [`list.map, `function.comp]

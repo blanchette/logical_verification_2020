@@ -1,7 +1,7 @@
 import .love05_inductive_predicates_demo
 
 
-/-! # LoVe Demo 7: Metaprogramming
+/- # LoVe Demo 7: Metaprogramming
 
 Users can extend Lean with custom monadic tactics and tools. This kind of
 programming—programming the prover—is called metaprogramming.
@@ -42,11 +42,12 @@ Advantages of Lean's metaprogramming framework:
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Tactics and Tactic Combinators
+/- ## Tactics and Tactic Combinators
 
 When programming our own tactics, we often need to repeat some actions on
 several goals, or to recover if a tactic fails. Tactic combinators help in such
@@ -63,7 +64,7 @@ begin
   repeat { sorry }
 end
 
-/-! The "orelse" combinator `<|>` tries its first argument and applies its
+/- The "orelse" combinator `<|>` tries its first argument and applies its
 second argument in case of failure. -/
 
 lemma repeat_orelse_example :
@@ -76,7 +77,7 @@ begin
   repeat { sorry }
 end
 
-/-! `iterate` works repeatedly on the first goal until it fails; then it
+/- `iterate` works repeatedly on the first goal until it fails; then it
 stops. -/
 
 lemma iterate_orelse_example :
@@ -89,7 +90,7 @@ begin
   repeat { sorry }
 end
 
-/-! `all_goals` applies its argument exactly once to each goal. It succeeds only
+/- `all_goals` applies its argument exactly once to each goal. It succeeds only
 if the argument succeeds on **all** goals. -/
 
 lemma all_goals_example :
@@ -100,7 +101,7 @@ begin
   repeat { sorry }
 end
 
-/-! `try` transforms its argument into a tactic that never fails. -/
+/- `try` transforms its argument into a tactic that never fails. -/
 
 lemma all_goals_try_example :
   even 4 ∧ even 7 ∧ even 3 ∧ even 0 :=
@@ -110,7 +111,7 @@ begin
   repeat { sorry }
 end
 
-/-! `any_goals` applies its argument exactly once to each goal. It succeeds
+/- `any_goals` applies its argument exactly once to each goal. It succeeds
 if the argument succeeds on **any** goal. -/
 
 lemma any_goals_example :
@@ -121,7 +122,7 @@ begin
   repeat { sorry }
 end
 
-/-! `solve1` transforms its argument into an all-or-nothing tactic. If the
+/- `solve1` transforms its argument into an all-or-nothing tactic. If the
 argument does not prove the goal, `solve1` fails. -/
 
 lemma any_goals_solve1_repeat_orelse_example :
@@ -134,10 +135,10 @@ begin
   repeat { sorry }
 end
 
-/-! The combinators `repeat`, `iterate`, `all_goals`, and `any_goals` can easily
+/- The combinators `repeat`, `iterate`, `all_goals`, and `any_goals` can easily
 lead to infinite looping: -/
 
-/-!
+/-
 lemma repeat_not_example :
   ¬ even 1 :=
 begin
@@ -146,7 +147,7 @@ begin
 end
 -/
 
-/-! Let us start with the actual metaprogramming, by coding a custom tactic. The
+/- Let us start with the actual metaprogramming, by coding a custom tactic. The
 tactic embodies the behavior we hardcoded in the `solve1` example above: -/
 
 meta def intro_and_even : tactic unit :=
@@ -154,11 +155,13 @@ do
   tactic.repeat (tactic.applyc ``and.intro),
   tactic.any_goals (tactic.solve1 (tactic.repeat
     (tactic.applyc ``even.add_two
-     <|> tactic.applyc ``even.zero)))
+     <|> tactic.applyc ``even.zero))),
+  pure ()
 
-/-! The `meta` keyword makes it possible for the function to call other
+/- The `meta` keyword makes it possible for the function to call other
 metafunctions. The `do` keyword enters a monad, and the `<|>` operator is the
-"orelse" operator of alternative monads.
+"orelse" operator of alternative monads. At the end, we return `()`, of type
+`unit`, to ensure the metaprogram has the desired type.
 
 Any executable Lean definition can be used as a metaprogram. In addition, we can
 put `meta` in front of a definition to indicate that is a metadefinition. Such
@@ -174,7 +177,7 @@ begin
 end
 
 
-/-! ## The Metaprogramming Monad
+/- ## The Metaprogramming Monad
 
 Tactics have access to
 
@@ -258,12 +261,13 @@ do
   hs ← tactic.local_context,
   exact_list hs
 
-lemma p_a_of_p_a {α : Type} {p : α → Prop} {a : α} (h : p a) :
+lemma app_of_app {α : Type} {p : α → Prop} {a : α}
+    (h : p a) :
   p a :=
 by hypothesis
 
 
-/-! ## Names, Expressions, Declarations, and Environments
+/- ## Names, Expressions, Declarations, and Environments
 
 The metaprogramming framework is articulated around five main types:
 
@@ -301,7 +305,7 @@ The metaprogramming framework is articulated around five main types:
 #check expr.elet
 #check expr.macro
 
-/-! We can create literal expressions conveniently using backticks and
+/- We can create literal expressions conveniently using backticks and
 parentheses:
 
 * Expressions with a single backtick must be fully elaborated.
@@ -329,7 +333,7 @@ run_cmd do
   let e : pexpr := ```(seattle.washington),
   tactic.trace e
 
-/-! We can also create literal names with backticks:
+/- We can also create literal names with backticks:
 
 * Names with a single backtick, `n, are not checked for existence.
 
@@ -343,7 +347,7 @@ run_cmd tactic.trace ``and.intro
 run_cmd tactic.trace ``intro_and_even
 run_cmd tactic.trace ``seattle.washington   -- fails
 
-/-! __Antiquotations__ embed an existing expression in a larger expression. They
+/- __Antiquotations__ embed an existing expression in a larger expression. They
 are announced by the prefix `%%` followed by a name from the current context.
 Antiquotations are available with one, two, and three backticks: -/
 
@@ -377,7 +381,7 @@ by do
 
 #print declaration
 
-/-! The `environment` type is presented as an abstract type, equipped with some
+/- The `environment` type is presented as an abstract type, equipped with some
 operations to query and modify it. The `environment.fold` metafunction iterates
 over all declarations making up the environment. -/
 
@@ -386,7 +390,7 @@ run_cmd do
   tactic.trace (environment.fold env 0 (λdecl n, n + 1))
 
 
-/-! ## First Example: A Conjuction-Destructing Tactic
+/- ## First Example: A Conjuction-Destructing Tactic
 
 We define a `destruct_and` tactic that automates the elimination of `∧` in
 premises, automating proofs such as these: -/
@@ -403,7 +407,7 @@ lemma abcd_bc (a b c d : Prop) (h : a ∧ (b ∧ c) ∧ d) :
   b ∧ c :=
 and.elim_left (and.elim_right h)
 
-/-! Our tactic relies on a helper metafunction, which takes as argument the
+/- Our tactic relies on a helper metafunction, which takes as argument the
 hypothesis `h` to use as an expression rather than as a name: -/
 
 meta def destruct_and_helper : expr → tactic unit
@@ -429,7 +433,7 @@ do
   h ← tactic.get_local nam,
   destruct_and_helper h
 
-/-! Let us check that our tactic works: -/
+/- Let us check that our tactic works: -/
 
 lemma abc_a (a b c : Prop) (h : a ∧ b ∧ c) :
   a :=
@@ -448,7 +452,7 @@ lemma abc_ac (a b c : Prop) (h : a ∧ b ∧ c) :
 by destruct_and `h   -- fails
 
 
-/-! ## Second Example: A Provability Advisor
+/- ## Second Example: A Provability Advisor
 
 Next, we implement a `prove_direct` tool that traverses all lemmas in the
 database and checks whether one of them can be used to prove the current goal. A
@@ -472,7 +476,8 @@ do
   tactic.applyc nam
     ({ md := tactic.transparency.reducible, unify := ff }
      : tactic.apply_cfg),
-  tactic.all_goals tactic.assumption
+  tactic.all_goals tactic.assumption,
+  pure ()
 
 meta def prove_direct : tactic unit :=
 do
@@ -499,7 +504,7 @@ lemma list.reverse_twice_symm (xs : list ℕ) :
   xs = list.reverse (list.reverse xs) :=
 by prove_direct   -- fails
 
-/-! As a small refinement, we propose a version of `prove_direct` that also
+/- As a small refinement, we propose a version of `prove_direct` that also
 looks for equalities stated in symmetric form. -/
 
 meta def prove_direct_symm : tactic unit :=
@@ -518,7 +523,7 @@ lemma list.reverse_twice_symm₂ (xs : list ℕ) :
 by prove_direct_symm
 
 
-/-! ## A Look at Two Predefined Tactics
+/- ## A Look at Two Predefined Tactics
 
 Quite a few of Lean's predefined tactics are implemented as metaprograms and
 not in C++. We can find these definitions by clicking the name of a construct

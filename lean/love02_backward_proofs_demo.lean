@@ -1,7 +1,7 @@
 import .love01_definitions_and_statements_demo
 
 
-/-! # LoVe Demo 2: Backward Proofs
+/- # LoVe Demo 2: Backward Proofs
 
 A __tactic__ operates on a proof goal and either proves it or creates new
 subgoals. Tactics are a __backward__ proof mechanism: They start from the goal
@@ -9,11 +9,14 @@ and work towards the available hypotheses and lemmas. -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
+namespace backward_proofs
 
-/-! ## Tactic Mode
+
+/- ## Tactic Mode
 
 Syntax of tactical proofs:
 
@@ -31,7 +34,7 @@ begin
   apply ha
 end
 
-/-! ## Basic Tactics
+/- ## Basic Tactics
 
 `intro`(`s`) moves `∀`-quantified variables, or the assumptions of
 implications `→`, from the goal's conclusion (after `⊢`) into the goal's
@@ -46,7 +49,7 @@ begin
   apply ha
 end
 
-/-! Terminal tactic syntax:
+/- Terminal tactic syntax:
 
     by _tactic_
 
@@ -69,7 +72,7 @@ begin
   apply ha
 end
 
-/-! `exact` matches the goal's conclusion with the specified lemma, closing the
+/- `exact` matches the goal's conclusion with the specified lemma, closing the
 goal. We can often use `apply` in such situations, but `exact` communicates our
 intentions better. -/
 
@@ -77,16 +80,16 @@ lemma fst_of_two_props₄ (a b : Prop) (ha : a) (hb : b) :
   a :=
 by exact ha
 
-/-! `assumption` finds a hypothesis from the local context that matches the
+/- `assumption` finds a hypothesis from the local context that matches the
 goal's conclusion and applies it to prove the goal. -/
 
 lemma fst_of_two_props₅ (a b : Prop) (ha : a) (hb : b) :
   a :=
 by assumption
 
-/-! `refl` proves `l = r`, where the two sides are equal up to computation.
-Computation means unfolding of definitions, β-reduction (application of λ to an
-argument), `let`, and more. -/
+/- `refl` proves `l = r`, where the two sides are syntactically equal up to
+computation. Computation means unfolding of definitions, β-reduction
+(application of λ to an argument), `let`, and more. -/
 
 lemma α_example {α β : Type} (f : α → β) :
   (λx, f x) = (λy, f y) :=
@@ -122,7 +125,7 @@ lemma ι_example {α β : Type} (a : α) (b : β) :
 by refl
 
 
-/-! ## Reasoning about Logical Connectives and Quantifiers
+/- ## Reasoning about Logical Connectives and Quantifiers
 
 Introduction rules: -/
 
@@ -134,7 +137,7 @@ Introduction rules: -/
 #check iff.intro
 #check exists.intro
 
-/-! Elimination rules: -/
+/- Elimination rules: -/
 
 #check false.elim
 #check and.elim_left
@@ -144,7 +147,7 @@ Introduction rules: -/
 #check iff.elim_right
 #check exists.elim
 
-/-! Definition of `¬` and related lemmas: -/
+/- Definition of `¬` and related lemmas: -/
 
 #print not
 #check not_def
@@ -162,7 +165,7 @@ begin
   exact hab
 end
 
-/-! The `{ … }` combinator focuses on the first subgoal. The tactic inside must
+/- The `{ … }` combinator focuses on the first subgoal. The tactic inside must
 fully prove it. -/
 
 lemma and_swap₂ :
@@ -174,7 +177,7 @@ begin
   { exact and.elim_left hab }
 end
 
-/-! Notice above how we pass the hypothesis `hab` directly to the lemmas
+/- Notice above how we pass the hypothesis `hab` directly to the lemmas
 `and.elim_right` and `and.elim_left`, instead of waiting for the lemmas's
 assumptions to appear as new subgoals. This is a small forward step in an
 otherwise backward proof. -/
@@ -224,14 +227,14 @@ begin
 end
 
 
-/-! ## Reasoning about Equality -/
+/- ## Reasoning about Equality -/
 
 #check eq.refl
 #check eq.symm
 #check eq.trans
 #check eq.subst
 
-/-! The above rules can be used directly: -/
+/- The above rules can be used directly: -/
 
 lemma cong_fst_arg {α : Type} (a a' b : α)
     (f : α → α → α) (ha : a = a') :
@@ -250,22 +253,22 @@ begin
   apply eq.refl
 end
 
-/-! `rewrite` applies a single equation as a left-to-right rewrite rule, once.
-To apply an equation right-to-left, prefix its name with `←`. -/
+/- `rw` applies a single equation as a left-to-right rewrite rule, once. To
+apply an equation right-to-left, prefix its name with `←`. -/
 
 lemma cong_two_args₂ {α : Type} (a a' b b' : α)
     (f : α → α → α) (ha : a = a') (hb : b = b') :
   f a b = f a' b' :=
 begin
-  rewrite ha,
-  rewrite hb
+  rw ha,
+  rw hb
 end
 
 lemma a_proof_of_negation₃ (a : Prop) :
   a → ¬¬ a :=
 begin
-  rewrite not_def,
-  rewrite not_def,
+  rw not_def,
+  rw not_def,
   intro ha,
   apply not.intro,
   intro hna,
@@ -273,7 +276,7 @@ begin
   exact ha
 end
 
-/-! `simp` applies a standard set of rewrite rules (the __simp set__)
+/- `simp` applies a standard set of rewrite rules (the __simp set__)
 exhaustively. The set can be extended using the `@[simp]` attribute. Lemmas can
 be temporarily added to the simp set with the syntax
 `simp [_lemma₁_, …, _lemmaN_]`. -/
@@ -283,14 +286,14 @@ lemma cong_two_args_etc {α : Type} (a a' b b' : α)
   g a b (1 + 1) = g a' b' 2 :=
 by simp [ha, hb]
 
-/-! `cc` applies __congruence closure__ to derive new equalities. -/
+/- `cc` applies __congruence closure__ to derive new equalities. -/
 
 lemma cong_two_args₃ {α : Type} (a a' b b' : α)
     (f : α → α → α) (ha : a = a') (hb : b = b') :
   f a b = f a' b' :=
 by cc
 
-/-! `cc` can also reason up to associativity and commutativity of `+`, `*`,
+/- `cc` can also reason up to associativity and commutativity of `+`, `*`,
 and other binary operators. -/
 
 lemma cong_assoc_comm (a a' b c : ℝ) (f : ℝ → ℝ)
@@ -299,45 +302,48 @@ lemma cong_assoc_comm (a a' b c : ℝ) (f : ℝ → ℝ)
 by cc
 
 
-/-! ## Proofs by Mathematical Induction
+/- ## Proofs by Mathematical Induction
 
-`induction` performs induction on the specified variable. It gives rise to one
+`induction'` performs induction on the specified variable. It gives rise to one
 subgoal per constructor. -/
 
 lemma add_zero (n : ℕ) :
   add 0 n = n :=
 begin
-  induction n,
+  induction' n,
   { refl },
-  { simp [add, n_ih] }
+  { simp [add, ih] }
 end
+
+/- We use `induction'`, a variant of Lean's built-in `induction` tactic. The
+two tactics are similar, but `induction'` is more user-friendly. -/
 
 lemma add_succ (m n : ℕ) :
   add (nat.succ m) n = nat.succ (add m n) :=
 begin
-  induction n,
+  induction' n,
   { refl },
-  { simp [add, n_ih] }
+  { simp [add, ih] }
 end
 
 lemma add_comm (m n : ℕ) :
   add m n = add n m :=
 begin
-  induction n,
+  induction' n,
   { simp [add, add_zero] },
-  { simp [add, add_succ, n_ih] }
+  { simp [add, add_succ, ih] }
 end
 
 lemma add_assoc (l m n : ℕ) :
   add (add l m) n = add l (add m n) :=
 begin
-  induction n,
+  induction' n,
   { refl },
-  { simp [add, n_ih] }
+  { simp [add, ih] }
 end
 
-/-! `cc` is extensible. We can register `add` as a commutative and associative
-operator using the type class instance mechanism (explained in lecture 11). This
+/- `cc` is extensible. We can register `add` as a commutative and associative
+operator using the type class instance mechanism (explained in lecture 4). This
 is useful for the `cc` invocation below. -/
 
 @[instance] def add.is_commutative : is_commutative ℕ add :=
@@ -349,14 +355,14 @@ is useful for the `cc` invocation below. -/
 lemma mul_add (l m n : ℕ) :
   mul l (add m n) = add (mul l m) (mul l n) :=
 begin
-  induction n,
+  induction' n,
   { refl },
-  { simp [add, mul, n_ih],
+  { simp [add, mul, ih],
     cc }
 end
 
 
-/-! ## Cleanup Tactics
+/- ## Cleanup Tactics
 
 `rename` changes the name of a variable or hypothesis.
 
@@ -372,5 +378,7 @@ begin
   rename hb h,
   exact h
 end
+
+end backward_proofs
 
 end LoVe

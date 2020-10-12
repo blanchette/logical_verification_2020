@@ -1,18 +1,19 @@
 import .love05_inductive_predicates_demo
 
 
-/-! # LoVe Demo 12: Basic Mathematical Structures
+/- # LoVe Demo 12: Basic Mathematical Structures
 
 We introduce definitions and proofs about basic mathematical structures such as
 groups, fields, and linear orders. -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Type Classes over a Single Binary Operator
+/- ## Type Classes over a Single Binary Operator
 
 Mathematically, a __group__ is a set `G` with a binary operator `• : G × G → G`
 with the following properties, called __group axioms__:
@@ -32,7 +33,7 @@ In Lean, a type class for groups can be defined as follows: -/
 
 namespace monolithic_group
 
-@[class] structure group (α : Type) : Type :=
+@[class] structure group (α : Type) :=
 (mul          : α → α → α)
 (one          : α)
 (inv          : α → α)
@@ -42,7 +43,7 @@ namespace monolithic_group
 
 end monolithic_group
 
-/-! In Lean, however, group is part of a larger hierarchy of algebraic
+/- In Lean, however, group is part of a larger hierarchy of algebraic
 structures:
 
 Type class               | Properties                               | Examples
@@ -70,7 +71,7 @@ Type class                   | Properties                                   | Ex
 #print group
 #print add_group
 
-/-! Let us define our own type, of integers modulo 2, and register it as an
+/- Let us define our own type, of integers modulo 2, and register it as an
 additive group. -/
 
 inductive ℤ₂ : Type
@@ -85,13 +86,12 @@ def ℤ₂.add : ℤ₂ → ℤ₂ → ℤ₂
 @[instance] def ℤ₂.add_group : add_group ℤ₂ :=
 { add          := ℤ₂.add,
   add_assoc    :=
-    by intros a b c; simp [(+)]; cases a; cases b; cases c;
-      refl,
+    by intros a b c; cases' a; cases' b; cases' c; refl,
   zero         := ℤ₂.zero,
-  zero_add     := by intro a; cases a; refl,
-  add_zero     := by intro a; cases a; refl,
+  zero_add     := by intro a; cases' a; refl,
+  add_zero     := by intro a; cases' a; refl,
   neg          := λa, a,
-  add_left_neg := by intro a; cases a; refl }
+  add_left_neg := by intro a; cases' a; refl }
 
 #reduce ℤ₂.one + 0 - 0 - ℤ₂.one
 
@@ -99,7 +99,7 @@ lemma ℤ₂.add_right_neg:
   ∀a : ℤ₂, a + - a = 0 :=
 add_right_neg
 
-/-! Another example: Lists are an `add_monoid`: -/
+/- Another example: Lists are an `add_monoid`: -/
 
 @[instance] def list.add_monoid {α : Type} :
   add_monoid (list α) :=
@@ -110,7 +110,7 @@ add_right_neg
   add_zero  := list.append_nil }
 
 
-/-! ## Type Classes with Two Binary Operators
+/- ## Type Classes with Two Binary Operators
 
 Mathematically, a __field__ is a set `F` such that
 
@@ -135,7 +135,7 @@ Type class       |  Properties                                         | Example
 
 #print field
 
-/-! Let us continue with our example: -/
+/- Let us continue with our example: -/
 
 def ℤ₂.mul : ℤ₂ → ℤ₂ → ℤ₂
 | ℤ₂.one  a       := a
@@ -146,19 +146,21 @@ def ℤ₂.mul : ℤ₂ → ℤ₂ → ℤ₂
 { one            := ℤ₂.one,
   mul            := ℤ₂.mul,
   inv            := λa, a,
-  add_comm       := by intros a b; cases a; cases b; refl,
-  zero_ne_one    := by finish,
-  one_mul        := by intros a; cases a; refl,
-  mul_one        := by intros a; cases a; refl,
-  mul_inv_cancel := by intros a h; cases a; finish,
-  inv_mul_cancel := by intros a h; cases a; finish,
+  add_comm       := by intros a b; cases' a; cases' b; refl,
+  exists_pair_ne :=
+    by apply exists.intro ℤ₂.zero; apply exists.intro ℤ₂.one;
+      finish,
+  one_mul        := by intros a; cases' a; refl,
+  mul_one        := by intros a; cases' a; refl,
+  mul_inv_cancel := by intros a h; cases' a; finish,
+  inv_zero       := by refl,
   mul_assoc      :=
-    by intros a b c; cases a; cases b; cases c; refl,
-  mul_comm       := by intros a b; cases a; cases b; refl,
+    by intros a b c; cases' a; cases' b; cases' c; refl,
+  mul_comm       := by intros a b; cases' a; cases' b; refl,
   left_distrib   :=
-    by intros a b c; by cases a; cases b; cases c; refl,
+    by intros a b c; cases' a; cases' b; cases' c; refl,
   right_distrib  :=
-    by intros a b c; by cases a; cases b; cases c; refl,
+    by intros a b c; cases' a; cases' b; cases' c; refl,
   ..ℤ₂.add_group }
 
 #reduce (1 : ℤ₂) * 0 / (0 - 1)
@@ -174,14 +176,14 @@ lemma ring_exp_example (a b : ℤ₂) (n : ℕ):
   (a + b) ^ n * (a ^ 2 + 2 * a * b + b ^ 2) :=
 by ring_exp
 
-/-! `ring` and `ring_exp` prove equalities over commutative rings and semirings
+/- `ring` and `ring_exp` prove equalities over commutative rings and semirings
 by normalizing expressions. The `ring_exp` variant also normalizes exponents. -/
 
 lemma abel_example (a b : ℤ) :
   a + b + 0 - (b + a + a) = - a :=
 by abel
 
-/-! `abel` proves equalities over additive commutative monoids and groups by
+/- `abel` proves equalities over additive commutative monoids and groups by
 normalizing expressions.
 
 
@@ -205,11 +207,11 @@ lemma neg_mul_neg_nat (n : ℕ) (z : ℤ) :
   (- z) * (- n) = z * n :=
 neg_mul_neg z n
 
-/-! Notice how Lean introduced a `↑` coercion: -/
+/- Notice how Lean introduced a `↑` coercion: -/
 
 #print neg_mul_neg_nat
 
-/-! Another example: -/
+/- Another example: -/
 
 lemma neg_nat_mul_neg (n : ℕ) (z : ℤ) :
   (- n : ℤ) * (- z) = n * z :=
@@ -217,7 +219,7 @@ neg_mul_neg n z
 
 #print neg_nat_mul_neg
 
-/-! In proofs involving coercions, the tactic `norm_cast` can be convenient. -/
+/- In proofs involving coercions, the tactic `norm_cast` can be convenient. -/
 
 lemma norm_cast_example_1 (m n : ℕ) (h : (m : ℤ) = (n : ℤ)) :
   m = n :=
@@ -230,7 +232,7 @@ lemma norm_cast_example_2 (m n : ℕ) :
   (m : ℤ) + (n : ℤ) = ((m + n : ℕ) : ℤ) :=
 by norm_cast
 
-/-! `norm_cast` moves coercions towards the inside of expressions, as a form of
+/- `norm_cast` moves coercions towards the inside of expressions, as a form of
 simplification. Like `simp`, it will generally produce a subgoal.
 
 `norm_cast` relies on lemmas such as the following: -/
@@ -240,7 +242,7 @@ simplification. Like `simp`, it will generally produce a subgoal.
 #check rat.cast_add
 
 
-/-! ### Lists, Multisets and Finite Sets
+/- ### Lists, Multisets and Finite Sets
 
 For finite collections of elements different structures are available:
 
@@ -272,6 +274,9 @@ lemma finsetorder_example :
   ({2, 3, 4} : finset ℕ) = {4, 3, 2} :=
 dec_trivial
 
+/- `dec_trivial` is a special lemma that can be used on trivial decidable
+goals (e.g., true closed executable expressions). -/
+
 def list.elems : btree ℕ → list ℕ
 | btree.empty        := []
 | (btree.node a l r) := a :: list.elems l ++ list.elems r
@@ -294,7 +299,7 @@ def finset.elems : btree ℕ → finset ℕ
 #eval finset.prod ({2, 3, 4} : finset ℕ) (λn, n)  -- result: 24
 
 
-/-! ## Order Type Classes
+/- ## Order Type Classes
 
 Many of the structures introduced above can be ordered. For example, the
 well-known order on the natural numbers can be defined as follows: -/
@@ -303,7 +308,7 @@ inductive nat.le : ℕ → ℕ → Prop
 | refl : ∀a : ℕ, nat.le a a
 | step : ∀a b : ℕ, nat.le a b → nat.le a (b + 1)
 
-/-! This is an example of a linear order. A __linear order__ (or
+/- This is an example of a linear order. A __linear order__ (or
 __total order__) is a binary relation `≤` such that for all `a`, `b`, `c`, the
 following properties hold:
 
@@ -342,14 +347,14 @@ follows: -/
   le_refl  := by intro xs; exact nat.le_refl _,
   le_trans := by intros xs ys zs; exact nat.le_trans }
 
-/-! This instance introduces the infix syntax `≤` and the relations `≥`, `<`,
+/- This instance introduces the infix syntax `≤` and the relations `≥`, `<`,
 and `>`: -/
 
 lemma list.length.preord_example {α : Type} (c : α) :
   [c] > [] :=
 dec_trivial
 
-/-! Complete lattices (lecture 10) are formalized as another type class,
+/- Complete lattices (lecture 10) are formalized as another type class,
 `complete_lattice`, which inherits from `partial_order`.
 
 Type classes combining orders and algebraic structures are also available:

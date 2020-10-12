@@ -1,7 +1,7 @@
 import .love08_operational_semantics_demo
 
 
-/-! # LoVe Demo 10: Denotational Semantics
+/- # LoVe Demo 10: Denotational Semantics
 
 We review a third way to specify the semantics of a programming language:
 denotational semantics. Denotational semantics attempt to directly specify the
@@ -12,11 +12,12 @@ idealized verifier, then denotational semantics is an idealized compiler.-/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Compositionality
+/- ## Compositionality
 
 A __denotational semantics__ defines the meaning of each program as a
 mathematical object:
@@ -64,12 +65,13 @@ def denote : stmt → set (state × state)
 | (stmt.assign n a) :=
   {st | prod.snd st = (prod.fst st){n ↦ a (prod.fst st)}}
 | (stmt.seq S T)    := denote S ◯ denote T
-| (stmt.ite b S T)  := (denote S ⇃ b) ∪ (denote T ⇃ (λs, ¬ b s))
+| (stmt.ite b S T)  :=
+  (denote S ⇃ b) ∪ (denote T ⇃ (λs, ¬ b s))
 | (stmt.while b S)  := sorry
 
 end sorry_defs
 
-/-! We write `⟦S⟧` for `denote S`. For `while`, we would like to write
+/- We write `⟦S⟧` for `denote S`. For `while`, we would like to write
 
     `((denote S ◯ denote (stmt.while b S)) ⇃ b) ∪ (Id ⇃ (λs, ¬ b s))`
 
@@ -182,12 +184,12 @@ lemma monotone_union {α β : Type} [partial_order α]
   monotone (λa, f a ∪ g a) :=
 begin
   intros a₁ a₂ ha b hb,
-  cases hb,
-  { exact or.intro_left _ (hf a₁ a₂ ha hb) },
-  { exact or.intro_right _ (hg a₁ a₂ ha hb) }
+  cases' hb,
+  { exact or.intro_left _ (hf a₁ a₂ ha h) },
+  { exact or.intro_right _ (hg a₁ a₂ ha h) }
 end
 
-/-! We will prove the following two lemmas in the exercise. -/
+/- We will prove the following two lemmas in the exercise. -/
 
 namespace sorry_lemmas
 
@@ -205,7 +207,7 @@ sorry
 end sorry_lemmas
 
 
-/-! ## Complete Lattices
+/- ## Complete Lattices
 
 To define the least fixpoint on sets, we need `⊆` and `⋂`. Complete lattices
 capture this concept abstractly. A __complete lattice__ is an ordered type `α`
@@ -255,7 +257,7 @@ Nonexamples:
 (Inf_le : ∀A b, b ∈ A → Inf A ≤ b)
 (le_Inf : ∀A b, (∀a, a ∈ A → b ≤ a) → b ≤ Inf A)
 
-/-! For sets: -/
+/- For sets: -/
 
 @[instance] def set.complete_lattice {α : Type} :
   complete_lattice (set α) :=
@@ -273,7 +275,7 @@ Nonexamples:
   le_Inf      := by tautology }
 
 
-/-! ## Least Fixpoint -/
+/- ## Least Fixpoint -/
 
 def lfp {α : Type} [complete_lattice α] (f : α → α) : α :=
 complete_lattice.Inf ({a | f a ≤ a})
@@ -288,7 +290,7 @@ lemma le_lfp {α : Type} [complete_lattice α] (f : α → α)
   a ≤ lfp f :=
 complete_lattice.le_Inf _ _ h
 
-/-! **Knaster-Tarski theorem:** For any monotone function `f`:
+/- **Knaster-Tarski theorem:** For any monotone function `f`:
 
 * `lfp f` is a fixpoint: `lfp f = f (lfp f)` (lemma `lfp_eq`);
 * `lfp f` is smaller than any other fixpoint: `X = f X → lfp f ≤ X`. -/
@@ -315,21 +317,22 @@ begin
 end
 
 
-/-! ## A Relational Denotational Semantics, Continued -/
+/- ## A Relational Denotational Semantics, Continued -/
 
 def denote : stmt → set (state × state)
 | stmt.skip         := Id
 | (stmt.assign x a) :=
   {st | prod.snd st = (prod.fst st){x ↦ a (prod.fst st)}}
 | (stmt.seq S T)    := denote S ◯ denote T
-| (stmt.ite b S T)  := (denote S ⇃ b) ∪ (denote T ⇃ (λs, ¬ b s))
+| (stmt.ite b S T)  :=
+  (denote S ⇃ b) ∪ (denote T ⇃ (λs, ¬ b s))
 | (stmt.while b S)  :=
   lfp (λX, ((denote S ◯ X) ⇃ b) ∪ (Id ⇃ (λs, ¬ b s)))
 
 notation `⟦` S `⟧`:= denote S
 
 
-/-! ## Application to Program Equivalence
+/- ## Application to Program Equivalence
 
 Based on the denotational semantics, we introduce the notion of program
 equivalence: `S₁ ~ S₂`. (Compare with exercise 8.) -/
@@ -339,7 +342,7 @@ def denote_equiv (S₁ S₂ : stmt) : Prop :=
 
 infix ` ~ ` := denote_equiv
 
-/-! It is obvious from the definition that `~` is an equivalence relation.
+/- It is obvious from the definition that `~` is an equivalence relation.
 
 Program equivalence can be used to replace subprograms by other subprograms with
 the same semantics. This is achieved by the following congruence rules: -/
@@ -359,7 +362,7 @@ lemma denote_equiv.while_congr {b} {S₁ S₂ : stmt}
   stmt.while b S₁ ~ stmt.while b S₂ :=
 by simp [denote_equiv, denote, *] at *
 
-/-! Compare the simplicity of these proofs with the corresponding proofs for a
+/- Compare the simplicity of these proofs with the corresponding proofs for a
 big-step semantics (exercise 8).
 
 Let us prove some program equivalences. -/
@@ -392,26 +395,23 @@ begin
 end
 
 
-/-! ## Equivalence of the Denotational and the Big-Step Semantics
+/- ## Equivalence of the Denotational and the Big-Step Semantics
 ## (**optional**) -/
 
-lemma denote_of_big_step (S : stmt) (s t : state) :
-  (S, s) ⟹ t → (s, t) ∈ ⟦S⟧ :=
+lemma denote_of_big_step (S : stmt) (s t : state) (h : (S, s) ⟹ t) :
+  (s, t) ∈ ⟦S⟧ :=
 begin
-  generalize hSs : (S, s) = Ss,
-  intro h,
-  induction h generalizing S s; cases hSs;
-    try { solve1 { simp [denote, *] } },
-  { apply exists.intro h_t,
-    tautology },
-  { rewrite eq.symm denote_equiv.ite_seq_while,
+  induction' h; try { solve1 { simp [denote, *] } },
+  case seq {
+    apply exists.intro t,
+    exact and.intro ih_h ih_h_1 },
+  case while_true {
+    rw eq.symm denote_equiv.ite_seq_while,
     simp [denote, *],
-    apply exists.intro h_t,
-    apply and.intro,
-    { tautology },
-    { apply h_ih_hrest (stmt.while h_b h_S),
-      refl } },
-  { rewrite eq.symm denote_equiv.ite_seq_while,
+    apply exists.intro t,
+    apply and.intro; assumption },
+  case while_false {
+    rw eq.symm denote_equiv.ite_seq_while,
     simp [denote, *] }
 end
 
@@ -422,7 +422,7 @@ lemma big_step_of_denote :
 | (stmt.seq S T)    s t :=
   begin
     intro h,
-    cases h with u hu,
+    cases' h with u hu,
     exact big_step.seq
       (big_step_of_denote S _ _ (and.elim_left hu))
       (big_step_of_denote T _ _ (and.elim_right hu))
@@ -430,15 +430,15 @@ lemma big_step_of_denote :
 | (stmt.ite b S T)  s t :=
   begin
     intro h,
-    cases h,
-    case or.inl {
-      cases h,
-      apply big_step.ite_true h_left,
-      exact big_step_of_denote _ _ _ h_right },
-    case or.inr {
-      cases h,
-      apply big_step.ite_false h_left,
-      exact big_step_of_denote _ _ _ h_right }
+    cases' h,
+    case inl {
+      cases' h,
+      apply big_step.ite_true left,
+      exact big_step_of_denote _ _ _ right },
+    case inr {
+      cases' h,
+      apply big_step.ite_false left,
+      exact big_step_of_denote _ _ _ right }
   end
 | (stmt.while b S)  s t :=
   begin
@@ -447,19 +447,19 @@ lemma big_step_of_denote :
       begin
         apply lfp_le _ _ _,
         intros x hx,
-        cases x with s t,
+        cases' x with s' t',
         simp at hx,
-        cases hx,
-        case or.inl {
-          cases hx with hs hst,
-          cases hst with u hu,
+        cases' hx,
+        case inl {
+          cases' h with hs hst,
+          cases' hst with u hu,
           apply big_step.while_true hs,
           { exact big_step_of_denote S _ _ (and.elim_left hu) },
           { exact and.elim_right hu } },
-        case or.inr {
-          cases hx,
-          cases hx_right,
-          apply big_step.while_false hx_left }
+        case inr {
+          cases' h,
+          cases' right,
+          apply big_step.while_false left }
       end,
     apply hw
   end

@@ -1,7 +1,7 @@
 import .love05_inductive_predicates_demo
 
 
-/-! # LoVe Demo 11: Logical Foundations of Mathematics
+/- # LoVe Demo 11: Logical Foundations of Mathematics
 
 We dive deeper into the logical foundations of Lean. Most of the features
 described here are especially relevant for defining mathematical objects and
@@ -9,11 +9,12 @@ proving theorems about them. -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Type Universes
+/- ## Universes
 
 Not only terms have a type, but also types have a type. For example, by the
 Curry-Howard correspondence:
@@ -44,8 +45,8 @@ Aliases:
     `Prop`   := `Sort 0`
     `Type u` := `Sort (u + 1)`
 
-The types of types (`Sort u`, `Type u`, and `Prop`) are called (__type__)
-__universes__. The `u` in `Sort u` is a __universe level__.
+The types of types (`Sort u`, `Type u`, and `Prop`) are called __universes__.
+The `u` in `Sort u` is a __universe level__.
 
 The hierarchy is captured by the following typing judgment:
 
@@ -72,14 +73,14 @@ universe variables u v
 #check Type*
 
 
-/-! ## The Peculiarities of Prop
+/- ## The Peculiarities of Prop
 
-`Prop` is different from the other type universes in many respects.
+`Prop` is different from the other universes in many respects.
 
 
 ### Impredicativity
 
-The function type `σ → τ` is put into the larger one of the type universes that
+The function type `σ → τ` is put into the larger one of the universes that
 `σ` and `τ` live in:
 
     C ⊢ σ : Type u    C ⊢ τ : Type v
@@ -118,7 +119,7 @@ where
 #check ∀a : Prop, a → a
 
 
-/-! ### Proof Irrelevance
+/- ### Proof Irrelevance
 
 A second difference between `Prop` and `Type u` is __proof irrelevance__:
 
@@ -142,7 +143,7 @@ lemma proof_irrel {a : Prop} (h₁ h₂ : a) :
 by refl
 
 
-/-! ### No Large Elimination
+/- ### No Large Elimination
 
 A further difference between `Prop` and `Type u` is that `Prop` does not allow
 __large elimination__, meaning that it impossible to extract data from a proof
@@ -158,12 +159,12 @@ match hsq with
 | Exists.intro j _ := j
 end
 
-/-! If the above were accepted, we could derive `false` as follows.
+/- If the above were accepted, we could derive `false` as follows.
 
 Let
 
-    `hsq₁` := `Exists.intro 3 dec_trivial`
-    `hsq₂` := `Exists.intro (-3) dec_trivial`
+    `hsq₁` := `Exists.intro 3 (by linarith)`
+    `hsq₂` := `Exists.intro (-3) (by linarith)`
 
 be two proofs of `∃j, (9 : ℤ) = j * j`. Then
 
@@ -182,7 +183,7 @@ a contradiction.
 
 As a compromise, Lean allows __small elimination__. It is called small
 elimination because it eliminate only into `Prop`, whereas large elimination can
-eliminate into an arbitrary large type universe `Sort u`. This means we can use
+eliminate into an arbitrary large universe `Sort u`. This means we can use
 `match` to analyze the structure of a proof, extract existential witnesses, and
 so on, as long as the `match` expression is itself a proof. We have seen several
 examples of this in lecture 5.
@@ -202,7 +203,7 @@ Consider Lean's `nonempty` inductive predicate: -/
 
 #print nonempty
 
-/-! The predicate states that `α` has at least one element.
+/- The predicate states that `α` has at least one element.
 
 To prove `nonempty α`, we must provide an `α` value to `nonempty.intro`: -/
 
@@ -210,7 +211,7 @@ lemma nat.nonempty :
   nonempty ℕ :=
 nonempty.intro 0
 
-/-! Since `nonempty` lives in `Prop`, large elimination is not available, and
+/- Since `nonempty` lives in `Prop`, large elimination is not available, and
 thus we cannot extract the element that was used from a proof of `nonempty α`.
 
 The axiom of choice allows us to obtain some element of type `α` if we can show
@@ -218,7 +219,7 @@ The axiom of choice allows us to obtain some element of type `α` if we can show
 
 #print classical.choice
 
-/-! It will just give us an arbitrary element of `α`; we have no way of knowing
+/- It will just give us an arbitrary element of `α`; we have no way of knowing
 whether this is the element that was used to prove `nonempty α`.
 
 The constant `classical.choice` is noncomputable, one of the reasons why some
@@ -227,7 +228,7 @@ logicians prefer to work without this axiom. -/
 #eval classical.choice nat.nonempty     -- fails
 #reduce classical.choice nat.nonempty   -- result: classical.choice _
 
-/-! The axiom of choice is only an axiom in Lean's core library, giving users
+/- The axiom of choice is only an axiom in Lean's core library, giving users
 the freedom to work with or without it.
 
 Definitions using it must be marked as `noncomputable`: -/
@@ -235,16 +236,16 @@ Definitions using it must be marked as `noncomputable`: -/
 noncomputable def arbitrary_nat : ℕ :=
 classical.choice nat.nonempty
 
-/-! The following tools rely on choice.
+/- The following tools rely on choice.
 
 
 ### Law of Excluded Middle -/
 
-#check classical.em -- excluded middle
+#check classical.em
 #check classical.by_contradiction
 
 
-/-! ### Hilbert Choice -/
+/- ### Hilbert Choice -/
 
 #print classical.some
 #print classical.some_spec
@@ -253,12 +254,12 @@ classical.choice nat.nonempty
 #check λ(p : ℕ → Prop) (h : ∃n : ℕ, p n), classical.some_spec h
 
 
-/-! ### Set-Theoretic Axiom of Choice -/
+/- ### Set-Theoretic Axiom of Choice -/
 
 #print classical.axiom_of_choice
 
 
-/-! ## Subtypes
+/- ## Subtypes
 
 Subtyping is a mechanism to create new types from existing ones.
 
@@ -275,7 +276,7 @@ inductive finset (α : Type) : Type
 | empty  : finset
 | insert : α → finset → finset
 
-/-! Given a base type and a property, the subtype has the syntax
+/- Given a base type and a property, the subtype has the syntax
 
     `{` _variable_ `:` _base-type_ `//` _property-applied-to-variable_ `}`
 
@@ -302,7 +303,7 @@ def full_btree (α : Type) : Type :=
 #print subtype
 #check subtype.mk
 
-/-! To define elements of `full_btree`, we must provide a `btree` and a proof
+/- To define elements of `full_btree`, we must provide a `btree` and a proof
 that it is full: -/
 
 def empty_full_btree : full_btree ℕ :=
@@ -320,7 +321,7 @@ subtype.mk (btree.node 6 btree.empty btree.empty)
 #reduce subtype.val full_btree_6
 #check subtype.property full_btree_6
 
-/-! We can lift existing operations on `btree` to `full_btree`: -/
+/- We can lift existing operations on `btree` to `full_btree`: -/
 
 def full_btree.mirror {α : Type} (t : full_btree α) :
   full_btree α :=
@@ -332,7 +333,7 @@ subtype.mk (mirror (subtype.val t))
 
 #reduce subtype.val (full_btree.mirror full_btree_6)
 
-/-! And of course we can prove lemmas about the lifted operations: -/
+/- And of course we can prove lemmas about the lifted operations: -/
 
 lemma full_btree.mirror_mirror {α : Type} (t : full_btree α) :
   (full_btree.mirror (full_btree.mirror t)) = t :=
@@ -345,7 +346,7 @@ end
 #check subtype.eq
 
 
-/-! ### Second Example: Vectors -/
+/- ### Second Example: Vectors -/
 
 #check vector
 
@@ -358,7 +359,7 @@ subtype.mk [1, 2, 3] (by refl)
 def vector.neg {n : ℕ} (v : vector ℤ n) : vector ℤ n :=
 subtype.mk (list.map int.neg (subtype.val v))
   begin
-    rewrite list.length_map,
+    rw list.length_map,
     exact subtype.property v
   end
 
@@ -372,7 +373,7 @@ end
 #check finset
 
 
-/-! ## Quotient Types
+/- ## Quotient Types
 
 Quotients are a powerful construction in mathematics used to construct `ℤ`, `ℚ`,
 `ℝ`, and many other types.
@@ -399,7 +400,7 @@ equal. -/
 #check quotient.induction_on
 
 
-/-! ## First Example: Integers
+/- ## First Example: Integers
 
 Let us build the integers `ℤ` as a quotient over pairs of natural numbers
 `ℕ × ℕ`.
@@ -426,9 +427,9 @@ However, this does not work because subtraction on `ℕ` is ill-behaved (e.g.,
       { intro pn,
         refl },
       { intros pn₁ pn₂ h,
-        rewrite h },
+        rw h },
       { intros pn₁ pn₂ pn₃ h₁₂ h₂₃,
-        apply @eq_of_add_eq_add_right _ _ _ (prod.snd pn₂),
+        apply @add_right_cancel _ _ _ (prod.snd pn₂),
         cc }
     end }
 
@@ -448,9 +449,9 @@ def int.zero : int :=
 lemma int.zero_eq (m : ℕ) :
   int.zero = ⟦(m, m)⟧ :=
 begin
-  rewrite int.zero,
+  rw int.zero,
   apply quotient.sound,
-  rewrite int.rel_iff,
+  rw int.rel_iff,
   simp
 end
 
@@ -462,7 +463,7 @@ quotient.lift₂
   begin
     intros pn₁ pn₂ pn₁' pn₂' h₁ h₂,
     apply quotient.sound,
-    rewrite int.rel_iff at *,
+    rw int.rel_iff at *,
     linarith
   end
 
@@ -475,26 +476,26 @@ lemma int.add_zero (i : int) :
 begin
   apply quotient.induction_on i,
   intro pn,
-  rewrite int.zero,
-  cases pn with p n,
-  rewrite int.add_eq,
+  rw int.zero,
+  cases' pn with p n,
+  rw int.add_eq,
   apply quotient.sound,
   simp
 end
 
-/-! This definitional syntax would be nice: -/
+/- This definitional syntax would be nice: -/
 
 -- fails
 def int.add : int → int → int
 | ⟦(p₁, n₁)⟧ ⟦(p₂, n₂)⟧ := ⟦(p₁ + p₂, n₁ + n₂)⟧
 
-/-! But it would be dangerous: -/
+/- But it would be dangerous: -/
 
 -- fails
 def int.fst : int → ℕ
 | ⟦(p, n)⟧ := p
 
-/-! Using `int.fst`, we could derive `false`. First, we have
+/- Using `int.fst`, we could derive `false`. First, we have
 
     `int.fst ⟦(0, 0)⟧ = 0`
     `int.fst ⟦(1, 1)⟧ = 1`
@@ -504,7 +505,7 @@ But since `⟦(0, 0)⟧ = ⟦(1, 1)⟧`, we get
     `0 = 1` -/
 
 
-/-! ### Second Example: Unordered Pairs
+/- ### Second Example: Unordered Pairs
 
 __Unordered pairs__ are pairs for which no distinction is made between the first
 and second components. They are usually written `{a, b}`.
@@ -518,7 +519,7 @@ We will introduce the type `upair` of unordered pairs as the quotient of pairs
     ({prod.fst ab₂, prod.snd ab₂} : set α),
   iseqv := by repeat { apply and.intro }; finish }
 
--- downprioritizes `upair.rel` w.r.t. `int.rel`
+-- needed for technical reasons, to deprioritize `upair.rel` w.r.t. `int.rel`
 attribute [instance, priority 999] upair.rel
 
 lemma upair.rel_iff {α : Type} (ab₁ ab₂ : α × α) :
@@ -533,26 +534,73 @@ quotient (upair.rel α)
 def upair.mk {α : Type} (a b : α) : upair α :=
 ⟦(a, b)⟧
 
-/-! It is easy to prove that the `upair.mk` constructor is symmetric: -/
+/- It is easy to prove that the `upair.mk` constructor is symmetric: -/
 
 lemma upair.mk_symm {α : Type} (a b : α) :
   upair.mk a b = upair.mk b a :=
 begin
   unfold upair.mk,
   apply quotient.sound,
-  rewrite upair.rel_iff,
-  apply set.insert_comm
+  rw upair.rel_iff,
+  apply set.union_comm
 end
 
-/-! Another representation of unordered pairs is as sets of cardinality 1 or 2.
+/- Another representation of unordered pairs is as sets of cardinality 1 or 2.
 The following operation converts `upair` to that representation: -/
 
 def set_of_upair {α : Type} : upair α → set α :=
 quotient.lift (λab : α × α, {prod.fst ab, prod.snd ab})
   begin
     intros ab₁ ab₂ h,
-    rewrite upair.rel_iff at *,
+    rw upair.rel_iff at *,
     exact h
   end
+
+
+/- ### Alternative Definitions via Normalization and Subtyping
+
+Each element of a quotient type correspond to an `≈`-equivalence class.
+If there exists a systematic way to obtain a **canonical representative** for
+each class, we can use a subtype instead of a quotient, keeping only the
+canonical representatives.
+
+Consider the quotient type `int` above. We could say that a pair `(p, n)` is
+__canonical__ if `p` or `n` is `0`. -/
+
+namespace alternative
+
+inductive int.is_canonical : ℕ × ℕ → Prop
+| nonpos {n : ℕ} : int.is_canonical (0, n)
+| nonneg {p : ℕ} : int.is_canonical (p, 0)
+
+def int : Type :=
+{pn : ℕ × ℕ // int.is_canonical pn}
+
+/- **Normalizing** pairs of natural numbers is easy: -/
+
+def int.normalize : ℕ × ℕ → ℕ × ℕ
+| (p, n) := if p ≥ n then (p - n, 0) else (0, n - p)
+
+lemma int.is_canonical_normalize (pn : ℕ × ℕ) :
+  int.is_canonical (int.normalize pn) :=
+begin
+  cases' pn with p n,
+  simp [int.normalize],
+  split_ifs,
+  { exact int.is_canonical.nonneg },
+  { exact int.is_canonical.nonpos }
+end
+
+/- For unordered pairs, there is no obvious normal form, except to always put
+the smaller element first (or last). This requires a linear order `≤` on `α`. -/
+
+def upair.is_canonical {α : Type} [linear_order α] :
+  α × α → Prop
+| (a, b) := a ≤ b
+
+def upair (α : Type) [linear_order α] : Type :=
+{ab : α × α // upair.is_canonical ab}
+
+end alternative
 
 end LoVe

@@ -1,15 +1,16 @@
 import .love08_operational_semantics_demo
 
 
-/-! # LoVe Exercise 8: Operational Semantics -/
+/- # LoVe Exercise 8: Operational Semantics -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Question 1: Program Equivalence
+/- ## Question 1: Program Equivalence
 
 For this question, we introduce the notion of program equivalence: `S₁ ≈ S₂`. -/
 
@@ -18,7 +19,7 @@ def big_step_equiv (S₁ S₂ : stmt) : Prop :=
 
 infix ` ≈ ` := big_step_equiv
 
-/-! Program equivalence is a equivalence relation, i.e., it is reflexive,
+/- Program equivalence is a equivalence relation, i.e., it is reflexive,
 symmetric, and transitive. -/
 
 @[refl] lemma big_step_equiv.refl {S : stmt} :
@@ -42,7 +43,7 @@ show (S₁, s) ⟹ t ↔ (S₃, s) ⟹ t, from
   iff.trans (h₁₂ s t) (h₂₃ s t)
 
 
-/-! 1.1. Prove the following program equivalences. -/
+/- 1.1. Prove the following program equivalences. -/
 
 lemma big_step_equiv.skip_assign_id {x} :
   stmt.assign x (λs, s x) ≈ stmt.skip :=
@@ -60,7 +61,7 @@ lemma big_step_equiv.ite_seq_while {b} {S : stmt} :
   stmt.ite b (S ;; stmt.while b S) stmt.skip ≈ stmt.while b S :=
 sorry
 
-/-! 1.2. Program equivalence can be used to replace subprograms by other
+/- 1.2. Program equivalence can be used to replace subprograms by other
 subprograms with the same semantics. Prove the following so-called congruence
 rules: -/
 
@@ -74,14 +75,15 @@ lemma big_step_equiv.ite_congr {b} {S₁ S₂ T₁ T₂ : stmt} (hS : S₁ ≈ S
   stmt.ite b S₁ T₁ ≈ stmt.ite b S₂ T₂ :=
 sorry
 
-/-! 1.3 (**optional**): Prove one more congruence rule. This one is more
+/- 1.3 (**optional**): Prove one more congruence rule. This one is more
 difficult. -/
 
 lemma denote_equiv.while_congr {b} {S₁ S₂ : stmt} (hS : S₁ ≈ S₂) :
   stmt.while b S₁ ≈ stmt.while b S₂ :=
+sorry
 
 
-/-! ## Question 2: Guarded Command Language (GCL)
+/- ## Question 2: Guarded Command Language (GCL)
 
 In 1976, E. W. Dijkstra introduced the guarded command language, a
 minimalistic imperative language with built-in nondeterminism. A grammar for one
@@ -117,7 +119,7 @@ inductive stmt (σ : Type) : Type
 
 infixr ` ;; ` : 90 := stmt.seq
 
-/-! The parameter `σ` abstracts over the state type. It is necessary as a work
+/- The parameter `σ` abstracts over the state type. It is necessary as a work
 around for a Lean bug.
 
 The big-step semantics is defined as follows: -/
@@ -140,7 +142,7 @@ inductive big_step : (stmt state × state) → state → Prop
 
 infix ` ⟹ ` : 110 := big_step
 
-/-! 2.1. Prove the following inversion rules, as we did in the lecture for the
+/- 2.1. Prove the following inversion rules, as we did in the lecture for the
 WHILE language. -/
 
 @[simp] lemma big_step_assign_iff {x a s t} :
@@ -168,7 +170,7 @@ sorry
 
 end gcl
 
-/-! 2.2. Complete the translation below of a deterministic program to a GCL
+/- 2.2. Complete the translation below of a deterministic program to a GCL
 program, by filling in the `sorry` placeholders below. -/
 
 def gcl_of : stmt → gcl.stmt state
@@ -182,7 +184,7 @@ def gcl_of : stmt → gcl.stmt state
 | (stmt.while b S)  :=
   sorry
 
-/-! 2.3. In the definition of `gcl_of` above, `skip` is translated to
+/- 2.3. In the definition of `gcl_of` above, `skip` is translated to
 `assert (λ_, true)`. Looking at the big-step semantics of both constructs, we
 can convince ourselves that it makes sense. Can you think of other correct ways
 to define the `skip` case? -/

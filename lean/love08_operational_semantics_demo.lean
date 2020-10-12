@@ -1,7 +1,7 @@
 import .lovelib
 
 
-/-! # LoVe Demo 8: Operational Semantics
+/- # LoVe Demo 8: Operational Semantics
 
 In this and the next two lectures, we will see how to use Lean to specify the
 syntax and semantics of programming languages and to reason about the
@@ -9,10 +9,12 @@ semantics. -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
-/-! ## Formal Semantics
+
+/- ## Formal Semantics
 
 A formal semantics helps specify and reason about the programming language
 itself, and about individual programs.
@@ -70,7 +72,7 @@ inductive stmt : Type
 
 infixr ` ;; ` : 90 := stmt.seq
 
-/-! In our grammer, we deliberately leave the syntax of arithmetic and Boolean
+/- In our grammar, we deliberately leave the syntax of arithmetic and Boolean
 expressions unspecified. In Lean, we have the choice:
 
 * We could use a type such as `aexp` from lecture 1 and similarly for Boolean
@@ -181,7 +183,7 @@ inductive big_step : stmt × state → state → Prop
 infix ` ⟹ ` : 110 := big_step
 
 
-/-! ## Properties of the Big-Step Semantics
+/- ## Properties of the Big-Step Semantics
 
 Equipped with a big-step semantics, we can
 
@@ -195,37 +197,37 @@ lemma big_step_deterministic {S s l r} (hl : (S, s) ⟹ l)
     (hr : (S, s) ⟹ r) :
   l = r :=
 begin
-  induction hl generalizing r,
-  case big_step.skip : s t {
-    cases hr,
+  induction' hl,
+  case skip : t {
+    cases' hr,
     refl },
-  case big_step.assign : x a s {
-    cases hr,
+  case assign : x a s {
+    cases' hr,
     refl },
-  case big_step.seq : S T s t l hS hT ihS ihT {
-    cases hr with _ _ _ _ _ _ _ t' _ hS' hT',
-    cases ihS hS',
-    cases ihT hT',
+  case seq : S T s t l hS hT ihS ihT {
+    cases' hr with _ _ _ _ _ _ _ t' _ hS' hT',
+    cases' ihS hS',
+    cases' ihT hT',
     refl },
-  case big_step.ite_true : b S T s t hb hS ih {
-    cases hr,
+  case ite_true : b S T s t hb hS ih {
+    cases' hr,
     { apply ih,
       assumption },
     { apply ih,
       cc } },
-  case big_step.ite_false : b S T s t hb hT ih {
-    cases hr,
+  case ite_false : b S T s t hb hT ih {
+    cases' hr,
     { apply ih,
       cc },
     { apply ih,
       assumption } },
-  case big_step.while_true : b S s t u hb hS hw ihS ihw {
-    cases hr,
-    { cases ihS hr_hbody,
-      cases ihw hr_hrest,
+  case while_true : b S s t u hb hS hw ihS ihw {
+    cases' hr,
+    { cases' ihS hr,
+      cases' ihw hr_1,
       refl },
     { cc } },
-  { cases hr,
+  { cases' hr,
     { cc },
     { refl } }
 end
@@ -237,19 +239,12 @@ sorry   -- unprovable
 lemma big_step_doesnt_terminate {S s t} :
   ¬ (stmt.while (λ_, true) S, s) ⟹ t :=
 begin
-  generalize hws : (stmt.while (λ_, true) S, s) = ws,
   intro hw,
-  induction hw generalizing s,
-  case big_step.while_true : b S s t u hcond hbody hrest ih_body
-      ih_rest {
-    cases hws,
-    apply ih_rest,
-    refl },
-  case big_step.while_false : b S s hcond {
-    cases hws,
-    apply hcond,
-    apply true.intro },
-  all_goals { cases hws }
+  induction' hw,
+  case while_true {
+    assumption },
+  case while_false {
+    cc }
 end
 
 @[simp] lemma big_step_skip_iff {s t} :
@@ -257,10 +252,10 @@ end
 begin
   apply iff.intro,
   { intro h,
-    cases h,
+    cases' h,
     refl },
   { intro h,
-    rewrite h,
+    rw h,
     exact big_step.skip }
 end
 
@@ -269,10 +264,10 @@ end
 begin
   apply iff.intro,
   { intro h,
-    cases h,
+    cases' h,
     refl },
   { intro h,
-    rewrite h,
+    rw h,
     exact big_step.assign }
 end
 
@@ -281,12 +276,12 @@ end
 begin
   apply iff.intro,
   { intro h,
-    cases h,
+    cases' h,
     apply exists.intro,
     apply and.intro; assumption },
   { intro h,
-    cases h,
-    cases h_h,
+    cases' h,
+    cases' h,
     apply big_step.seq; assumption }
 end
 
@@ -296,13 +291,13 @@ end
 begin
   apply iff.intro,
   { intro h,
-    cases h,
+    cases' h,
     { apply or.intro_left,
       cc },
     { apply or.intro_right,
       cc } },
   { intro h,
-    cases h; cases h,
+    cases' h; cases' h,
     { apply big_step.ite_true; assumption },
     { apply big_step.ite_false; assumption } }
 end
@@ -314,22 +309,22 @@ lemma big_step_while_iff {b S s u} :
 begin
   apply iff.intro,
   { intro h,
-    cases h,
+    cases' h,
     { apply or.intro_left,
-      apply exists.intro h_t,
+      apply exists.intro t,
       cc },
     { apply or.intro_right,
       cc } },
   { intro h,
-    cases h,
+    cases' h,
     case or.inl {
-      cases h with t h,
-      cases h with hb h,
-      cases h with hS hwhile,
+      cases' h with t h,
+      cases' h with hb h,
+      cases' h with hS hwhile,
       exact big_step.while_true hb hS hwhile },
     case or.inr {
-      cases h with hb hus,
-      rewrite hus,
+      cases' h with hb hus,
+      rw hus,
       exact big_step.while_false hb } }
 end
 
@@ -337,15 +332,15 @@ lemma big_step_while_true_iff {b : state → Prop} {S s u}
     (hcond : b s) :
   (stmt.while b S, s) ⟹ u ↔
   (∃t, (S, s) ⟹ t ∧ (stmt.while b S, t) ⟹ u) :=
-by rewrite big_step_while_iff; simp [hcond]
+by rw big_step_while_iff; simp [hcond]
 
 @[simp] lemma big_step_while_false_iff {b : state → Prop}
     {S s t} (hcond : ¬ b s) :
   (stmt.while b S, s) ⟹ t ↔ t = s :=
-by rewrite big_step_while_iff; simp [hcond]
+by rw big_step_while_iff; simp [hcond]
 
 
-/-! ## Small-Step Semantics
+/- ## Small-Step Semantics
 
 A big-step semantics
 
@@ -415,7 +410,7 @@ infixr ` ⇒ ` := small_step
 infixr ` ⇒* ` : 100 := star small_step
 
 
-/-! Equipped with a small-step semantics, we can **define** a big-step
+/- Equipped with a small-step semantics, we can **define** a big-step
 semantics:
 
 > `(S, s) ⟹ s'` if and only if `(S, s) ⇒* (skip, s')`
@@ -434,44 +429,49 @@ The main disadvantage of small-step semantics is that we now have two relations,
 We can prove that a configuration `(S, s)` is final if and only if `S = skip`.
 This ensures that we have not forgotten a derivation rule. -/
 
-lemma small_step_final {S s} :
+lemma small_step_final (S s) :
   (¬ ∃T t, (S, s) ⇒ (T, t)) ↔ S = stmt.skip :=
 begin
-  induction S,
-  case stmt.skip {
+  induction' S,
+  case skip {
     simp,
     intros T t hstep,
-    cases hstep },
-  case stmt.assign : x a {
+    cases' hstep },
+  case assign : x a {
     simp,
-    intro hall,
-    exact hall _ _ small_step.assign },
-  case stmt.seq : S T ihS ihT {
+    apply exists.intro stmt.skip,
+    apply exists.intro (s{x ↦ a s}),
+    exact small_step.assign },
+  case seq : S T ihS ihT {
     simp,
-    intro hall,
-    cases classical.em (S = stmt.skip),
-    case or.inl {
-      apply hall T s,
-      rewrite h,
+    cases' classical.em (S = stmt.skip),
+    case inl {
+      rw h,
+      apply exists.intro T,
+      apply exists.intro s,
       exact small_step.seq_skip },
-    case or.inr {
+    case inr {
       simp [h, auto.not_forall_eq, auto.not_not_eq] at ihS,
-      cases ihS with S' hS',
-      cases hS' with s' hs',
-      apply hall (S' ;; T) s',
+      cases' ihS s with S' hS',
+      cases' hS' with s' hs',
+      apply exists.intro (S' ;; T),
+      apply exists.intro s',
       exact small_step.seq_step hs' } },
-  case stmt.ite : b S T ihS ihT {
+  case ite : b S T ihS ihT {
     simp,
-    intro hall,
-    cases classical.em (b s),
-    repeat {
-      apply hall,
-      exact small_step.ite_true h
-      <|> exact small_step.ite_false h } },
-  case stmt.while {
+    cases' classical.em (b s),
+    case inl {
+      apply exists.intro S,
+      apply exists.intro s,
+      exact small_step.ite_true h },
+    case inr {
+      apply exists.intro T,
+      apply exists.intro s,
+      exact small_step.ite_false h } },
+  case while : b S ih {
     simp,
-    intro hall,
-    apply hall,
+    apply exists.intro (stmt.ite b (S ;; stmt.while b S) stmt.skip),
+    apply exists.intro s,
     exact small_step.while }
 end
 
@@ -479,46 +479,44 @@ lemma small_step_deterministic {S s Ll Rr}
     (hl : (S, s) ⇒ Ll) (hr : (S, s) ⇒ Rr) :
   Ll = Rr :=
 begin
-  induction hl generalizing Rr,
-  case small_step.assign : x a s {
-    cases hr,
+  induction' hl,
+  case assign : x a s {
+    cases' hr,
     refl },
-  case small_step.seq_step : S S₁ T s s₁ hS₁ ih {
-    cases hr,
-    case small_step.seq_step : S₂ s₂ hS₂ {
+  case seq_step : S S₁ T s s₁ hS₁ ih {
+    cases' hr,
+    case seq_step : S S₂ _ _ s₂ hS₂ {
       have hSs₁₂ := ih hS₂,
       cc },
-    case small_step.seq_skip {
-      cases hS₁ } },
-  case small_step.seq_skip : T s {
-    cases hr,
-    case small_step.seq_step : S₂ s₂ hS₂ {
-      cases hS₂ },
-    case small_step.seq_skip {
-      refl } },
-  case small_step.ite_true : b S T s hcond {
-    cases hr,
-    case small_step.ite_true {
+    case seq_skip {
+      cases' hS₁ } },
+  case seq_skip : T s {
+    cases' hr,
+    { cases' hr },
+    { refl } },
+  case ite_true : b S T s hcond {
+    cases' hr,
+    case ite_true {
       refl },
-    case small_step.ite_false {
+    case ite_false {
       cc } },
-  case small_step.ite_false : b S T s hcond {
-    cases hr,
-    case small_step.ite_true {
+  case ite_false : b S T s hcond {
+    cases' hr,
+    case ite_true {
       cc },
-    case small_step.ite_false {
+    case ite_false {
       refl } },
-  case small_step.while : b S s {
-    cases hr,
+  case while : b S s {
+    cases' hr,
     refl }
 end
 
-/-! We can define inversion rules also about the small-step semantics. Here are
+/- We can define inversion rules also about the small-step semantics. Here are
 three examples: -/
 
 lemma small_step_skip {S s t} :
   ¬ ((stmt.skip, s) ⇒ (S, t)) :=
-by intro h; cases h
+by intro h; cases' h
 
 @[simp] lemma small_step_seq_iff {S T s Ut} :
   (S ;; T, s) ⇒ Ut ↔
@@ -527,24 +525,24 @@ by intro h; cases h
 begin
   apply iff.intro,
   { intro h,
-    cases h,
+    cases' h,
     { apply or.intro_left,
-      apply exists.intro h_S',
-      apply exists.intro h_s',
+      apply exists.intro S',
+      apply exists.intro s',
       cc },
     { apply or.intro_right,
       cc } },
   { intro h,
-    cases h,
-    { cases h,
-      cases h_h,
-      cases h_h_h,
-      rewrite h_h_h_right,
+    cases' h,
+    { cases' h,
+      cases' h,
+      cases' h,
+      rw right,
       apply small_step.seq_step,
       assumption },
-    { cases h,
-      rewrite h_left,
-      rewrite h_right,
+    { cases' h,
+      rw left,
+      rw right,
       apply small_step.seq_skip } }
 end
 
@@ -554,25 +552,25 @@ end
 begin
   apply iff.intro,
   { intro h,
-    cases h,
+    cases' h,
     { apply or.intro_left,
       cc },
     { apply or.intro_right,
       cc } },
   { intro h,
-    cases h,
-    { cases h,
-      rewrite h_right,
+    cases' h,
+    { cases' h,
+      rw right,
       apply small_step.ite_true,
       assumption },
-    { cases h,
-      rewrite h_right,
+    { cases' h,
+      rw right,
       apply small_step.ite_false,
       assumption } }
 end
 
 
-/-! ### Equivalence of the Big-Step and the Small-Step Semantics (**optional**)
+/- ### Equivalence of the Big-Step and the Small-Step Semantics (**optional**)
 
 A more important result is the connection between the big-step and the
 small-step semantics:
@@ -587,9 +585,8 @@ lemma star_small_step_seq {S T s u}
 begin
   apply star.lift (λSs, (prod.fst Ss ;; T, prod.snd Ss)) _ h,
   intros Ss Ss' h,
-  cases Ss,
-  cases Ss',
-  simp,
+  cases' Ss,
+  cases' Ss',
   apply small_step.seq_step,
   assumption
 end
@@ -597,41 +594,39 @@ end
 lemma star_small_step_of_big_step {S s t} (h : (S, s) ⟹ t) :
   (S, s) ⇒* (stmt.skip, t) :=
 begin
-  induction h,
-  case big_step.skip {
+  induction' h,
+  case skip {
     refl },
-  case big_step.assign {
+  case assign {
     exact star.single small_step.assign },
-  case big_step.seq : S T s t u hS hT ihS ihT {
+  case seq : S T s t u hS hT ihS ihT {
     transitivity,
     exact star_small_step_seq ihS,
     apply star.head small_step.seq_skip ihT },
-  case big_step.ite_true : b S T s t hs hst ih {
+  case ite_true : b S T s t hs hst ih {
     exact star.head (small_step.ite_true hs) ih },
-  case big_step.ite_false : b S T s t hs hst ih {
+  case ite_false : b S T s t hs hst ih {
     exact star.head (small_step.ite_false hs) ih },
-  case big_step.while_true : b S s t u hb hS hw ihS ihw {
+  case while_true : b S s t u hb hS hw ihS ihw {
     exact (star.head small_step.while
       (star.head (small_step.ite_true hb)
          (star.trans (star_small_step_seq ihS)
             (star.head small_step.seq_skip ihw)))) },
-  case big_step.while_false : b S s hb {
+  case while_false : b S s hb {
     exact star.tail (star.single small_step.while)
       (small_step.ite_false hb) }
 end
 
-lemma big_step_of_small_step_of_big_step {S₀ S₁ s₀ s₁ s₂} :
-  (S₀, s₀) ⇒ (S₁, s₁) → (S₁, s₁) ⟹ s₂ → (S₀, s₀) ⟹ s₂ :=
+lemma big_step_of_small_step_of_big_step {S₀ S₁ s₀ s₁ s₂}
+  (h₁ : (S₀, s₀) ⇒ (S₁, s₁)) :
+  (S₁, s₁) ⟹ s₂ → (S₀, s₀) ⟹ s₂ :=
 begin
-  generalize hSs₀ : (S₀, s₀) = Ss₀,
-  generalize hSs₁ : (S₁, s₁) = Ss₁,
-  intro h,
-  induction h generalizing S₀ s₀ S₁ s₁ s₂;
-    cases hSs₁; clear hSs₁; cases hSs₀; clear hSs₀;
-    simp [*, big_step_while_true_iff] { contextual := tt },
-  { intros u hS' hT,
+  induction' h₁;
+    simp [*, big_step_while_true_iff] {contextual := tt},
+  case seq_step {
+    intros u hS' hT,
     apply exists.intro u,
-    exact and.intro (h_ih (eq.refl _) (eq.refl _) hS') hT }
+    exact and.intro (ih hS') hT }
 end
 
 lemma big_step_of_star_small_step {S s t} :
@@ -643,9 +638,9 @@ begin
       using LoVe.rtc.star.head_induction_on
       with _ S's' h h' ih
       generalizing S s;
-    cases hSs; clear hSs,
+    cases' hSs,
   { exact big_step.skip },
-  { cases S's' with S' s',
+  { cases' S's' with S' s',
     apply big_step_of_small_step_of_big_step h,
     apply ih,
     refl }
@@ -657,7 +652,7 @@ iff.intro star_small_step_of_big_step
   big_step_of_star_small_step
 
 
-/-! ## Parallelism (**optional**) -/
+/- ## Parallelism (**optional**) -/
 
 inductive par_step :
     nat → list stmt × state → list stmt × state → Prop

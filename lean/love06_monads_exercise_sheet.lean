@@ -1,15 +1,16 @@
 import .love06_monads_demo
 
 
-/-! # LoVe Exercise 6: Monads -/
+/- # LoVe Exercise 6: Monads -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Question 1: A State Monad with Failure
+/- ## Question 1: A State Monad with Failure
 
 We introduce a richer notion of lawful monad that provides an `orelse`
 operator `<|>` satisfying some laws, given below. `emp` denotes failure.
@@ -29,7 +30,7 @@ operator `<|>` satisfying some laws, given below. `emp` denotes failure.
 (bind_emp {α β : Type} (f : m α) :
   (f >>= (λa, emp : α → m β)) = emp)
 
-/-! 1.1. We set up the `option` type constructor to be a
+/- 1.1. We set up the `option` type constructor to be a
 `lawful_monad_with_orelse`. Complete the proofs. -/
 
 def option.orelse {α : Type} : option α → option α → option α
@@ -45,7 +46,7 @@ def option.orelse {α : Type} : option α → option α → option α
   orelse_emp   :=
     begin
       intros α a,
-      cases a,
+      cases' a,
       { refl },
       { refl }
     end,
@@ -64,7 +65,7 @@ def option.orelse {α : Type} : option α → option α → option α
   (option.some a >>= g) = g a :=
 sorry
 
-/-! Let us enable some convenient pattern matching syntax, by instantiating
+/- Let us enable some convenient pattern matching syntax, by instantiating
 Lean's `monad_fail` type class. (Do not worry if you do not understand what
 we are referring to.) -/
 
@@ -72,7 +73,7 @@ we are referring to.) -/
   [lawful_monad_with_orelse m] : monad_fail m :=
 { fail := λα msg, lawful_monad_with_orelse.emp }
 
-/-! Now we can write definitions such as the following: -/
+/- Now we can write definitions such as the following: -/
 
 def first_of_three {m : Type → Type} [lawful_monad_with_orelse m]
   (c : m (list ℕ)) : m ℕ :=
@@ -84,7 +85,7 @@ do
 #eval first_of_three (option.some [1, 2, 3])
 #eval first_of_three (option.some [1, 2, 3, 4])
 
-/-! Using `lawful_monad_with_orelse` and the `monad_fail` syntax, we can give a
+/- Using `lawful_monad_with_orelse` and the `monad_fail` syntax, we can give a
 concise definition for the `sum_2_5_7` function seen in the lecture. -/
 
 def sum_2_5_7₇ {m : Type → Type} [lawful_monad_with_orelse m]
@@ -93,7 +94,7 @@ do
   (_ :: n2 :: _ :: _ :: n5 :: _ :: n7 :: _) ← c,
   pure (n2 + n5 + n7)
 
-/-! 1.2. Now we are ready to define `faction σ` ("eff action"): a monad with an
+/- 1.2. Now we are ready to define `faction σ` ("eff action"): a monad with an
 internal state of type `σ` that can fail (unlike `action σ`).
 
 We start with defining `faction σ α`, where `σ` is the type of the internal
@@ -112,7 +113,7 @@ Hints:
 def faction (σ : Type) (α : Type) :=
 σ → option (α × σ)
 
-/-! 1.3. Define the `get` and `set` function for `faction`, where `get` returns
+/- 1.3. Define the `get` and `set` function for `faction`, where `get` returns
 the state passed along the state monad and `set s` changes the state to `s`. -/
 
 def get {σ : Type} : faction σ σ :=
@@ -121,14 +122,12 @@ sorry
 def set {σ : Type} (s : σ) : faction σ unit :=
 sorry
 
-/-! 1.4. Define the monadic operator `pure` for `faction`, in such a way that it
-will satisfy the monad laws. -/
+/- We set up the `>>=` syntax on `faction`: -/
 
 def faction.bind {σ α β : Type} (f : faction σ α) (g : α → faction σ β) :
   faction σ β
 | s := f s >>= (λas, g (prod.fst as) (prod.snd as))
 
-/-! We set up the `>>=` syntax on `faction`: -/
 
 @[instance] def faction.has_bind {σ : Type} : has_bind (faction σ) :=
 { bind := @faction.bind σ }
@@ -138,10 +137,13 @@ lemma faction.bind_apply {σ α β : Type} (f : faction σ α) (g : α → facti
   (f >>= g) s = (f s >>= (λas, g (prod.fst as) (prod.snd as))) :=
 by refl
 
+/- 1.4. Define the monadic operator `pure` for `faction`, in such a way that it
+will satisfy the monad laws. -/
+
 def faction.pure {σ α : Type} (a : α) : faction σ α :=
 sorry
 
-/-! We set up the syntax for `pure` on `faction`: -/
+/- We set up the syntax for `pure` on `faction`: -/
 
 @[instance] def faction.has_pure {σ : Type} : has_pure (faction σ) :=
 { pure := @faction.pure σ }
@@ -150,15 +152,15 @@ lemma faction.pure_apply {σ α : Type} (a : α) (s : σ) :
   (pure a : faction σ α) s = option.some (a, s) :=
 by refl
 
-/-! 1.3. Register `faction` as a monad.
+/- 1.3. Register `faction` as a monad.
 
 Hints:
 
 * The `funext` lemma is useful when you need to prove equality between two
   functions.
 
-* `cases f s` only works when `f s` appears in your goal, so you may need to
-  unfold some constants before you can invoke `cases`. -/
+* `cases' f s` only works when `f s` appears in your goal, so you may need to
+  unfold some constants before you can invoke `cases'`. -/
 
 @[instance] def faction.lawful_monad {σ : Type} : lawful_monad (faction σ) :=
 { pure_bind  :=
@@ -176,7 +178,7 @@ Hints:
   .. faction.has_pure }
 
 
-/-! ## Question 2: Kleisli Operator
+/- ## Question 2: Kleisli Operator
 
 The Kleisli operator `>=>` (not to be confused with `>>=`) is useful for
 pipelining monadic operations. Note that `λa, f a >>= g` is to be parsed as
@@ -188,7 +190,7 @@ def kleisli {m : Type → Type} [lawful_monad m] {α β γ : Type} (f : α → m
 
 infixr ` >=> ` : 90 := kleisli
 
-/-! 2.1. Prove that `pure` is a left and right unit for the Kleisli operator. -/
+/- 2.1. Prove that `pure` is a left and right unit for the Kleisli operator. -/
 
 lemma pure_kleisli {m : Type → Type} [lawful_monad m] {α β : Type}
     (f : α → m β) :
@@ -200,7 +202,7 @@ lemma kleisli_pure {m : Type → Type} [lawful_monad m] {α β : Type}
   (f >=> pure) = f :=
 sorry
 
-/-! 2.2. Prove associativity of the Kleisli operator. -/
+/- 2.2. Prove associativity of the Kleisli operator. -/
 
 lemma kleisli_assoc {m : Type → Type} [lawful_monad m] {α β γ δ : Type}
     (f : α → m β) (g : β → m γ) (h : γ → m δ) :

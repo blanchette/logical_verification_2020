@@ -1,25 +1,33 @@
 import .love01_definitions_and_statements_demo
 
 
-/-! # LoVe Demo 3: Forward Proofs
+/- # LoVe Demo 3: Forward Proofs
 
 When developing a proof, often it makes sense to work __forward__: to start with
-what we already know and proceed step by step towards our goal. Structured
-proofs are a style that supports this reasoning. -/
+what we already know and proceed step by step towards our goal. Lean's
+structured proofs and raw proof terms are two style that support forward
+reasoning. -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
+namespace forward_proofs
 
-/-! ## Structured Constructs
+
+/- ## Structured Constructs
 
 Structured proofs are syntactic sugar sprinkled on top of Lean's
 __proof terms__.
 
 The simplest kind of structured proof is the name of a lemma, possibly with
 arguments. -/
+
+lemma add_comm (m n : ℕ) :
+  add m n = add n m :=
+sorry
 
 lemma add_comm_zero_left (n : ℕ) :
   add 0 n = add n 0 :=
@@ -29,7 +37,7 @@ lemma add_comm_zero_left₂ (n : ℕ) :
   add 0 n = add n 0 :=
 by exact add_comm 0 n
 
-/-! `fix` and `assume` move `∀`-quantified variables and assumptions from the
+/- `fix` and `assume` move `∀`-quantified variables and assumptions from the
 goal into the local context. They can be seen as structured versions of the
 `intros` tactic.
 
@@ -55,7 +63,7 @@ lemma fst_of_two_props₃ (a b : Prop) (ha : a) (hb : b) :
   a :=
 ha
 
-/-! `have` proves an intermediate lemma, which can refer to the local
+/- `have` proves an intermediate lemma, which can refer to the local
 context. -/
 
 lemma prop_comp (a b c : Prop) (hab : a → b) (hbc : b → c) :
@@ -75,7 +83,7 @@ show c, from
   hbc (hab ha)
 
 
-/-! ## Forward Reasoning about Connectives and Quantifiers -/
+/- ## Forward Reasoning about Connectives and Quantifiers -/
 
 lemma and_swap (a b : Prop) :
   a ∧ b → b ∧ a :=
@@ -140,7 +148,7 @@ iff.intro
    assume heq : x = t,
    show p x, from
      begin
-       rewrite heq,
+       rw heq,
        exact hp
      end)
 
@@ -167,7 +175,7 @@ iff.intro
           by cc))
 
 
-/-! ## Calculational Proofs
+/- ## Calculational Proofs
 
 In informal mathematics, we often use transitive chains of equalities,
 inequalities, or equivalences (e.g., `a ≥ b ≥ c`). In Lean, such calculational
@@ -188,27 +196,27 @@ lemma two_mul_example (m n : ℕ) :
   2 * m + n = m + n + m :=
 calc  2 * m + n
     = (m + m) + n :
-  by rewrite two_mul
+  by rw two_mul
 ... = m + n + m :
   by cc
 
-/-! `calc` saves some repetition, some `have` labels, and some transitive
+/- `calc` saves some repetition, some `have` labels, and some transitive
 reasoning: -/
 
 lemma two_mul_example₂ (m n : ℕ) :
   2 * m + n = m + n + m :=
 have h₁ : 2 * m + n = (m + m) + n :=
-  by rewrite two_mul,
+  by rw two_mul,
 have h₂ : (m + m) + n = m + n + m :=
   by cc,
 show _, from
   eq.trans h₁ h₂
 
 
-/-! ## Forward Tactics
+/- ## Forward Reasoning with Tactics
 
-The `have` and `let` structured proof commands are also available as a tactic.
-Even in tactic mode, it can be useful to state intermediate results and
+The `have`, `let`, and `calc` structured proof commands are also available as a
+tactic. Even in tactic mode, it can be useful to state intermediate results and
 definitions in a forward fashion.
 
 Observe that the syntax for the tactic `let` is slightly different than for the
@@ -227,7 +235,7 @@ begin
 end
 
 
-/-! ## Dependent Types
+/- ## Dependent Types
 
 Dependent types are the defining feature of the dependent type theory family of
 logics.
@@ -255,12 +263,12 @@ term. This is what we mean when we say that simple type theory does not support
 dependent types.
 
 In summary, there are four cases for `λx, t` in the calculus of inductive
-constructions (cf. Barendregt's λ-cube):
+constructions (cf. Barendregt's `λ`-cube):
 
 Body (`t`) |              | Argument (`x`) | Description
 ---------- | ------------ | -------------- | ------------------------------
-A term     | depending on | a term         | Simply typed λ-expression
-A type     | depending on | a term         | Dependent type (stricto senso)
+A term     | depending on | a term         | Simply typed `λ`-expression
+A type     | depending on | a term         | Dependent type (strictly speaking)
 A term     | depending on | a type         | Polymorphic term
 A type     | depending on | a type         | Type constructor
 
@@ -310,7 +318,7 @@ principle:
 * PAT = propositions as types;
 * PAT = proofs as terms.
 
-This is also called the Curry–Howard(–De Bruijn) correspondence.
+This is also called the Curry–Howard correspondence.
 
 Types:
 
@@ -358,16 +366,18 @@ begin
   exact hab
 end
 
-/-! Tactical proofs are reduced to proof terms. -/
+/- Tactical proofs are reduced to proof terms. -/
 
 #print and_swap₃
 #print and_swap₄
 
+end forward_proofs
 
-/-! ## Induction by Pattern Matching
+
+/- ## Induction by Pattern Matching
 
 By the Curry–Howard correspondence, a proof by induction is the same as a
-recursively specified proof term. Thus, as alternative to the `induction`
+recursively specified proof term. Thus, as alternative to the `induction'`
 tactic, induction can also be done by pattern matching:
 
  * the induction hypothesis is then available under the name of the lemma we are
@@ -385,7 +395,7 @@ lemma reverse_append {α : Type} :
 lemma reverse_append₂ {α : Type} (xs ys : list α) :
   reverse (xs ++ ys) = reverse ys ++ reverse xs :=
 begin
-  induction xs,
+  induction' xs,
   case list.nil {
     simp [reverse] },
   case list.cons : x xs ih {

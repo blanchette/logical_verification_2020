@@ -1,26 +1,25 @@
 import .lovelib
 
 
-/-! # LoVe Demo 6: Monads
+/- # LoVe Demo 6: Monads
 
 We take a look at an important functional programming abstraction: monads.
 Monads generalize computation with side effects. Haskell has shown that monads
 can be used very successful to write imperative programs. For us, they are
-interesting in three ways:
-
-* They are a useful concept in their own right.
+interesting in their own right and for two more reasons:
 
 * They provide a nice example of axiomatic reasoning.
 
-* They are useful for programming Lean itself (metaprogramming). -/
+* They are useful for programming Lean itself (metaprogramming, lecture 7). -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Introductory Example
+/- ## Introductory Example
 
 Consider the following programming task:
 
@@ -45,22 +44,22 @@ match list.nth ns 1 with
   end
 end
 
-/-! The code is ugly, because of all the pattern matching on options.
+/- The code is ugly, because of all the pattern matching on options.
 
-We can put all the ugliness in one function, which we call `bind_opt`: -/
+We can put all the ugliness in one function, which we call `connect`: -/
 
-def bind_opt {α : Type} {β : Type} :
+def connect {α : Type} {β : Type} :
   option α → (α → option β) → option β
 | option.none     f := option.none
 | (option.some a) f := f a
 
 def sum_2_5_7₂ (ns : list ℕ) : option ℕ :=
-bind_opt (list.nth ns 1)
-  (λn2, bind_opt (list.nth ns 4)
-     (λn5, bind_opt (list.nth ns 6)
+connect (list.nth ns 1)
+  (λn2, connect (list.nth ns 4)
+     (λn5, connect (list.nth ns 6)
         (λn7, option.some (n2 + n5 + n7))))
 
-/-! Instead of defining `bind_opt` ourselves, we can use Lean's predefined
+/- Instead of defining `connect` ourselves, we can use Lean's predefined
 general `bind` operation. We can also use `pure` instead of `option.some`: -/
 
 #check bind
@@ -71,7 +70,7 @@ bind (list.nth ns 1)
      (λn5, bind (list.nth ns 6)
         (λn7, pure (n2 + n5 + n7))))
 
-/-! Syntactic sugar:
+/- Syntactic sugar:
 
     `ma >>= f` := `bind ma f` -/
 
@@ -83,7 +82,7 @@ list.nth ns 1 >>=
     λn5, list.nth ns 6 >>=
       λn7, pure (n2 + n5 + n7)
 
-/-! Syntactic sugar:
+/- Syntactic sugar:
 
     `do a ← ma, t` := `ma >>= (λa, t)`
     `do ma, t`     := `ma >>= (λ_, t)` -/
@@ -94,7 +93,7 @@ do n2 ← list.nth ns 1,
     do n7 ← list.nth ns 6,
       pure (n2 + n5 + n7)
 
-/-! The `do`s can be combined: -/
+/- The `do`s can be combined: -/
 
 def sum_2_5_7₆ (ns : list ℕ) : option ℕ :=
 do
@@ -103,7 +102,7 @@ do
   n7 ← list.nth ns 6,
   pure (n2 + n5 + n7)
 
-/-! Although the notation has an imperative flavor, the function is a pure
+/- Although the notation has an imperative flavor, the function is a pure
 functional program.
 
 
@@ -120,7 +119,7 @@ parameter `α` (i.e., `m α`) equipped with two distinguished operations:
 For `option`:
 
     `pure` := `option.some`
-    `bind` := `bind_opt`
+    `bind` := `connect`
 
 Intuitively, we can think of a monad as a "box":
 
@@ -186,7 +185,7 @@ Pure data as the second program can be simplified away:
   =
     x
 
-Nested programs `x`, `f`, `g` can be linearized using this associativity rule:
+Nested programs `x`, `f`, `g` can be flattened using this associativity rule:
 
     do
       b ← do {
@@ -207,7 +206,7 @@ Monads are a mathematical structure, so we use class to add them as a type class
 by a type—or here, by a type constructor `m : Type → Type`. -/
 
 @[class] structure lawful_monad (m : Type → Type)
-  extends has_bind m, has_pure m : Type 1 :=
+  extends has_bind m, has_pure m :=
 (pure_bind {α β : Type} (a : α) (f : α → m β) :
    (pure a >>= f) = f a)
 (bind_pure {α : Type} (ma : m α) :
@@ -219,16 +218,13 @@ by a type—or here, by a type constructor `m : Type → Type`. -/
 #print monad
 #print is_lawful_monad
 
-
-/-! Step by step:
+/- Step by step:
 
 * We are creating a structure parameterized by a unary type constructor `m`.
 
 * The structure inherits the fields, and any syntactic sugar, from structures
   called `has_bind` and `has_pure`, which provide the `bind` and `pure`
   operations on `m` and some syntactic sugar.
-
-* `Type 1` is necessary for reasons that will become clear in lecture 11.
 
 * The definition adds three fields to those already provided by `has_bind` and
   `has_pure`, to store the proofs of the monad laws.
@@ -268,7 +264,7 @@ def id.bind {α β : Type} : id α → (α → id β) → id β
     end }
 
 
-/-! ## Exceptions -/
+/- ## Exceptions -/
 
 def option.pure {α : Type} : α → option α :=
 option.some
@@ -289,14 +285,14 @@ def option.bind {α β : Type} :
   bind_pure  :=
     begin
       intros α m,
-      cases m,
+      cases' m,
       { refl },
       { refl }
     end,
   bind_assoc :=
     begin
       intros α β γ f g m,
-      cases m,
+      cases' m,
       { refl },
       { refl }
     end }
@@ -313,7 +309,7 @@ def option.catch {α : Type} :
 { orelse := @option.catch }
 
 
-/-! ## Mutable State -/
+/- ## Mutable State -/
 
 def action (σ α : Type) :=
 σ → α × σ
@@ -352,7 +348,7 @@ def action.bind {σ : Type} {α β : Type} (ma : action σ α)
       apply funext,
       intro s,
       simp [action.bind],
-      cases m s,
+      cases' m s,
       refl
     end,
   bind_assoc :=
@@ -361,7 +357,7 @@ def action.bind {σ : Type} {α β : Type} (ma : action σ α)
       apply funext,
       intro s,
       simp [action.bind],
-      cases m s,
+      cases' m s,
       refl
     end }
 
@@ -382,7 +378,7 @@ def diff_list : list ℕ → action ℕ (list ℕ)
 #eval diff_list [1, 2, 3, 2, 4, 5, 2] 0
 
 
-/-! ## Nondeterminism -/
+/- ## Nondeterminism -/
 
 #check set
 
@@ -414,7 +410,7 @@ def set.bind {α β : Type} : set α → (α → set β) → set β
       tautology
     end }
 
-/-! `tautology` performs elimination of the logical symbols `∧`, `∨`, `↔`, and
+/- `tautology` performs elimination of the logical symbols `∧`, `∨`, `↔`, and
 `∃` in hypotheses and introduction of `∧`, `↔`, and `∃` in the conclusion, until
 all the emerging subgoals can be trivially proved (e.g., by `refl`).
 

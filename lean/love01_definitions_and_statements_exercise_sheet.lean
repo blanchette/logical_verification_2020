@@ -1,20 +1,21 @@
 import .love01_definitions_and_statements_demo
 
 
-/-! # LoVe Exercise 1: Definitions and Statements
+/- # LoVe Exercise 1: Definitions and Statements
 
 Replace the placeholders (e.g., `:= sorry`) with your solutions. -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Question 1: Truncating Subtraction
+/- ## Question 1: Truncated Subtraction
 
-1.1. Define the function `sub` that implements truncating subtraction on natural
-numbers by recursion. "Truncating" means that results that mathematically would
+1.1. Define the function `sub` that implements truncated subtraction on natural
+numbers by recursion. "Truncated" means that results that mathematically would
 be negative are represented by 0. For example:
 
     `sub 7 2 = 5`
@@ -23,7 +24,7 @@ be negative are represented by 0. For example:
 def sub : ℕ → ℕ → ℕ :=
 sorry
 
-/-! 1.2. Check that your function works as expected. -/
+/- 1.2. Check that your function works as expected. -/
 
 #eval sub 0 0   -- expected: 0
 #eval sub 0 1   -- expected: 0
@@ -38,7 +39,7 @@ sorry
 #eval sub 7 2   -- expected: 5
 
 
-/-! ## Question 2: Arithmetic Expressions
+/- ## Question 2: Arithmetic Expressions
 
 Consider the type `aexp` from the lecture and the function `eval` that
 computes the value of an expression. You will find the definitions in the file
@@ -52,7 +53,7 @@ to
 #check aexp
 #check eval
 
-/-! 2.1. Test that `eval` behaves as expected. Make sure to exercise each
+/- 2.1. Test that `eval` behaves as expected. Make sure to exercise each
 constructor at least once. You can use the following environment in your tests.
 What happens if you divide by zero?
 
@@ -68,7 +69,7 @@ def some_env : string → ℤ
 #eval eval some_env (aexp.var "x")   -- expected: 3
 -- invoke `#eval` here
 
-/-! 2.2. The following function simplifies arithmetic expressions involving
+/- 2.2. The following function simplifies arithmetic expressions involving
 addition. It simplifies `0 + e` and `e + 0` to `e`. Complete the definition so
 that it also simplifies expressions involving the other three binary
 operators. -/
@@ -85,15 +86,16 @@ def simplify : aexp → aexp
 | (aexp.mul e₁ e₂)           := aexp.mul (simplify e₁) (simplify e₂)
 | (aexp.div e₁ e₂)           := aexp.div (simplify e₁) (simplify e₂)
 
-/-! 2.3. State (without proving it) the correctness lemma for `simplify`, namely
+/- 2.3. State (without proving it) the correctness lemma for `simplify`, namely
 that the simplified expression should have the same semantics, with respect to
 `eval`, as the original expression. -/
 
 lemma simplify_correct (env : string → ℤ) (e : aexp) :
--- enter your lemma statement here
+  true :=   -- replace `true` by your lemma statement
+sorry
 
 
-/-! ## Question 3: λ-Terms
+/- ## Question 3: λ-Terms
 
 3.1. Complete the following definitions, by replacing the `sorry` markers by
 terms of the expected type.
@@ -115,7 +117,7 @@ sorry
 def proj_1st : α → α → α :=
 sorry
 
-/-! Please give a different answer than for `proj_1st`. -/
+/- Please give a different answer than for `proj_1st`. -/
 
 def proj_2nd : α → α → α :=
 sorry
@@ -123,7 +125,7 @@ sorry
 def some_nonsense : (α → β → γ) → α → (α → γ) → β → γ :=
 sorry
 
-/-! 3.2. Show the typing derivation for your definition of `C` above, on paper
+/- 3.2. Show the typing derivation for your definition of `C` above, on paper
 or using ASCII or Unicode art. You might find the characters `–` (to draw
 horizontal bars) and `⊢` useful. -/
 

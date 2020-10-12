@@ -1,7 +1,7 @@
 import .lovelib
 
 
-/-! # LoVe Demo 4: Functional Programming
+/- # LoVe Demo 4: Functional Programming
 
 We take a closer look at the basics of typed functional programming: inductive
 types, proofs by induction, recursive functions, pattern matching, structures
@@ -9,17 +9,18 @@ types, proofs by induction, recursive functions, pattern matching, structures
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Inductive Types
+/- ## Inductive Types
 
 Recall the definition of type `nat` (= `ℕ`): -/
 
 #print nat
 
-/-! Mottos:
+/- Mottos:
 
 * **No junk**: The type contains no values beyond those expressible using the
   constructors.
@@ -64,26 +65,26 @@ on. -/
 lemma nat.succ_neq_self (n : ℕ) :
   nat.succ n ≠ n :=
 begin
-  induction n,
+  induction' n,
   { simp },
-  { simp [n_ih] }
+  { simp [ih] }
 end
 
-/-! The `case` tactic can be used to supply custom names, and potentially
+/- The `case` tactic can be used to supply custom names, and potentially
 reorder the cases. -/
 
 lemma nat.succ_neq_self₂ (n : ℕ) :
   nat.succ n ≠ n :=
 begin
-  induction n,
-  case nat.succ : m ih {
-    simp [ih] },
+  induction' n,
+  case nat.succ : m IH {
+    simp [IH] },
   case nat.zero {
     simp }
 end
 
 
-/-! ## Structural Recursion
+/- ## Structural Recursion
 
 __Structural recursion__ is a form of recursion that allows us to peel off
 one or more constructors from the value on which we recurse. Such functions are
@@ -99,7 +100,7 @@ def fact₂ : ℕ → ℕ
 | 1       := 1
 | (n + 1) := (n + 1) * fact₂ n
 
-/-! For structurally recursive functions, Lean can automatically prove
+/- For structurally recursive functions, Lean can automatically prove
 termination. For more general recursive schemes, the termination check may fail.
 Sometimes it does so for a good reason, as in the following example: -/
 
@@ -123,10 +124,8 @@ have 0 = 1 :=
 show false, from
   by cc
 
-/-! **Warning:** The above definitions of factorial are wrong.
 
-
-## Pattern Matching Expressions
+/- ## Pattern Matching Expressions
 
     `match` _term₁_, …, _termM_ `with`
     | _pattern₁₁_, …, _pattern₁M_ := _result₁_
@@ -151,12 +150,12 @@ def min (a b : ℕ) : ℕ :=
 if a ≤ b then a else b
 
 
-/-! ## Structures
+/- ## Structures
 
 Lean provides a convenient syntax for defining records, or structures. These are
 essentially nonrecursive, single-constructor inductive types. -/
 
-structure rgb : Type :=
+structure rgb :=
 (red green blue : ℕ)
 
 #check rgb.mk
@@ -180,7 +179,7 @@ def rgb.blue : rgb → ℕ
 
 end rgb_as_inductive
 
-structure rgba extends rgb : Type :=
+structure rgba extends rgb :=
 (alpha : ℕ)
 
 #print rgba
@@ -202,15 +201,15 @@ def shuffle (c : rgb) : rgb :=
   green := rgb.blue c,
   blue  := rgb.red c }
 
-/-! `cases` performs a case distinction on the specified term. This gives rise
+/- `cases'` performs a case distinction on the specified term. This gives rise
 to as many subgoals as there are constructors in the definition of the term's
-type. The tactic behaves almost the same as `induction` except that it does not
-produce induction hypotheses. -/
+type. The tactic behaves the same as `induction` except that it does not produce
+induction hypotheses. -/
 
 lemma shuffle_shuffle_shuffle (c : rgb) :
   shuffle (shuffle (shuffle c)) = c :=
 begin
-  cases c,
+  cases' c,
   refl
 end
 
@@ -221,7 +220,7 @@ match c with
 end
 
 
-/-! ## Type Classes
+/- ## Type Classes
 
 A __type class__ is a structure type combining abstract constants and their
 properties. A type can be declared an instance of a type class by providing
@@ -247,7 +246,7 @@ def head {α : Type} [inhabited α] : list α → α
 lemma head_head {α : Type} [inhabited α] (xs : list α) :
   head [head xs] = head xs :=
 begin
-  cases xs,
+  cases' xs,
   { refl },
   { refl }
 end
@@ -271,7 +270,7 @@ inductive empty : Type
   inhabited (α × β) :=
 { default := (inhabited.default α, inhabited.default β) }
 
-/-! Here are other type classes without properties: -/
+/- Here are other type classes without properties: -/
 
 #check has_zero
 #check has_neg
@@ -285,38 +284,36 @@ inductive empty : Type
 #check (1 : ℝ)
 #check (1 : linear_map _ _ _)
 
-/-! We encountered these type classes in lecture 2: -/
+/- We encountered these type classes in lecture 2: -/
 
 #print is_commutative
 #print is_associative
 
 
-/-! ## Lists
+/- ## Lists
 
 `list` is an inductive polymorphic type constructed from `nil` and `cons`: -/
 
 #print list
 
-/-! `cases` can also be used on a hypothesis of the form `l = r`. It matches `r`
+/- `cases'` can also be used on a hypothesis of the form `l = r`. It matches `r`
 against `l` and replaces all occurrences of the variables occurring in `r` with
-the corresponding terms in `l` everywhere in the goal. The remaining hypothesis
-`l = l` can be removed using `clear h` if desired. -/
+the corresponding terms in `l` everywhere in the goal. -/
 
 lemma injection_example {α : Type} (x y : α) (xs ys : list α)
     (h : list.cons x xs = list.cons y ys) :
   x = y ∧ xs = ys :=
 begin
-  cases h,
-  clear h,
+  cases' h,
   cc
 end
 
-/-! If `r` fails to match `l`, no subgoals emerge; the proof is complete. -/
+/- If `r` fails to match `l`, no subgoals emerge; the proof is complete. -/
 
-lemma distinctness_example {α : Type} (x y : α)
-    (xs ys : list α) (h : [] = y :: ys) :
+lemma distinctness_example {α : Type} (y : α) (ys : list α)
+    (h : [] = y :: ys) :
   false :=
-by cases h
+by cases' h
 
 def map {α β : Type} (f : α → β) : list α → list β
 | []        := []
@@ -331,10 +328,10 @@ def map₂ {α β : Type} : (α → β) → list α → list β
 lemma map_ident {α : Type} (xs : list α) :
   map (λx, x) xs = xs :=
 begin
-  induction xs,
+  induction' xs,
   case list.nil {
     refl },
-  case list.cons : y ys ih {
+  case list.cons : y ys {
     simp [map, ih] }
 end
 
@@ -342,20 +339,20 @@ lemma map_comp {α β γ : Type} (f : α → β) (g : β → γ)
     (xs : list α) :
   map g (map f xs) = map (λx, g (f x)) xs :=
 begin
-  induction xs,
+  induction' xs,
   case list.nil {
     refl },
-  case list.cons : y ys ih {
+  case list.cons : y ys {
     simp [map, ih] }
 end
 
 lemma map_append {α β : Type} (f : α → β) (xs ys : list α) :
   map f (xs ++ ys) = map f xs ++ map f ys :=
 begin
-  induction xs,
+  induction' xs,
   case list.nil {
     refl },
-  case list.cons : y ys ih {
+  case list.cons : y ys {
     simp [map, ih] }
 end
 
@@ -375,7 +372,8 @@ def head_le {α : Type} : ∀xs : list α, xs ≠ [] → α
 
 #eval head_opt [3, 1, 4]
 #eval head_le [3, 1, 4] (by simp)
-#eval head_le ([] : list ℕ) sorry   -- fails
+-- fails
+#eval head_le ([] : list ℕ) sorry
 
 def zip {α β : Type} : list α → list β → list (α × β)
 | (x :: xs) (y :: ys) := (x, y) :: zip xs ys
@@ -390,7 +388,7 @@ def length {α : Type} : list α → ℕ
 
 #check list.length
 
-/-! `cases` can also be used to perform a case distinction on a proposition, in
+/- `cases'` can also be used to perform a case distinction on a proposition, in
 conjunction with `classical.em`. Two cases emerge: one in which the proposition
 is true and one in which it is false.
 
@@ -401,10 +399,10 @@ Also notice the `have` tactic below. We will come back to it. -/
 lemma min_add_add (l m n : ℕ) :
   min (m + l) (n + l) = min m n + l :=
 begin
-  cases classical.em (m ≤ n),
-  case or.inl : h {
+  cases' classical.em (m ≤ n),
+  case or.inl {
     simp [min, h] },
-  case or.inr : h {
+  case or.inr {
     simp [min, h] }
 end
 
@@ -425,15 +423,15 @@ else
 lemma length_zip {α β : Type} (xs : list α) (ys : list β) :
   length (zip xs ys) = min (length xs) (length ys) :=
 begin
-  induction xs generalizing ys,
+  induction' xs,
   case list.nil {
     refl },
-  case list.cons : x xs ih {
-    cases ys,
+  case list.cons : x xs' {
+    cases' ys,
     case list.nil {
       refl },
-    case list.cons : y ys {
-      simp [zip, length, ih, min_add_add] } }
+    case list.cons : y ys' {
+      simp [zip, length, ih ys', min_add_add] } }
 end
 
 lemma map_zip {α α' β β' : Type} (f : α → α') (g : β → β') :
@@ -446,7 +444,7 @@ lemma map_zip {α α' β β' : Type} (f : α → α') (g : β → β') :
 | (_ :: _)  []        := by refl
 
 
-/-! ## Binary Trees
+/- ## Binary Trees
 
 Inductive types with constructors taking several recursive arguments define
 tree-like objects. __Binary trees__ have nodes with at most two children. -/
@@ -455,7 +453,7 @@ inductive btree (α : Type) : Type
 | empty {} : btree
 | node     : α → btree → btree → btree
 
-/-! The type `aexp` of arithmetic expressions was also an example of a tree data
+/- The type `aexp` of arithmetic expressions was also an example of a tree data
 structure.
 
 The nodes of a tree, whether inner nodes or leaf nodes, often carry labels or
@@ -476,17 +474,12 @@ def mirror {α : Type} : btree α → btree α
 lemma mirror_mirror {α : Type} (t : btree α) :
   mirror (mirror t) = t :=
 begin
-  induction t,
+  induction' t,
   case btree.empty {
     refl },
   case btree.node : a l r ih_l ih_r {
     simp [mirror, ih_l, ih_r] }
 end
-
-lemma mirror_eq_empty_iff {α : Type} :
-  ∀t : btree α, mirror t = btree.empty ↔ t = btree.empty
-| btree.empty        := by refl
-| (btree.node _ _ _) := by simp [mirror]
 
 lemma mirror_mirror₂ {α : Type} :
   ∀t : btree α, mirror (mirror t) = t
@@ -498,12 +491,17 @@ lemma mirror_mirror₂ {α : Type} :
   ... = btree.node a (mirror (mirror l)) (mirror (mirror r)) :
     by refl
   ... = btree.node a l (mirror (mirror r)) :
-    by rewrite mirror_mirror₂ l
+    by rw mirror_mirror₂ l
   ... = btree.node a l r :
-    by rewrite mirror_mirror₂ r
+    by rw mirror_mirror₂ r
+
+lemma mirror_eq_empty_iff {α : Type} :
+  ∀t : btree α, mirror t = btree.empty ↔ t = btree.empty
+| btree.empty        := by refl
+| (btree.node _ _ _) := by simp [mirror]
 
 
-/-! ## Dependent Inductive Types (**optional**) -/
+/- ## Dependent Inductive Types (**optional**) -/
 
 #check vector
 

@@ -2,7 +2,7 @@ import .love03_forward_proofs_demo
 import .love04_functional_programming_demo
 
 
-/-! # LoVe Demo 5: Inductive Predicates
+/- # LoVe Demo 5: Inductive Predicates
 
 __Inductive predicates__, or inductively defined propositions, are a convenient
 way to specify functions of type `⋯ → Prop`. They are reminiscent of formal
@@ -11,15 +11,16 @@ excellence.
 
 A possible view of Lean:
 
-    Lean = typed functional programming + logic programming + more logic -/
+    Lean = functional programming + logic programming + more logic -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Introductory Examples
+/- ## Introductory Examples
 
 ### Even Numbers
 
@@ -36,7 +37,7 @@ inductive even : ℕ → Prop
 | zero    : even 0
 | add_two : ∀k : ℕ, even k → even (k + 2)
 
-/-! This should look familiar. We have used the same syntax, except with `Type`
+/- This should look familiar. We have used the same syntax, except with `Type`
 instead of `Prop`, for inductive types.
 
 The above command introduces a new unary predicate `even` as well as two
@@ -56,14 +57,14 @@ have even_2 : even 2 :=
 show even 4, from
   even.add_two _ even_2
 
-/-! Why cannot we simply define `even` recursively? Indeed, why not? -/
+/- Why cannot we simply define `even` recursively? Indeed, why not? -/
 
 def even₂ : ℕ → bool
 | 0       := tt
 | 1       := ff
 | (k + 2) := even₂ k
 
-/-! There are advantages and disadvantages to both styles.
+/- There are advantages and disadvantages to both styles.
 
 The recursive version requires us to specify a false case (1), and it requires
 us to worry about termination. On the other hand, because it is computational,
@@ -77,7 +78,7 @@ Yet another way to define `even` is as a nonrecursive definition: -/
 def even₃ (k : ℕ) : bool :=
 k % 2 = 0
 
-/-! Mathematicians would probably find this the most satisfactory definition.
+/- Mathematicians would probably find this the most satisfactory definition.
 But the inductive version is a convenient, intuitive example that is typical of
 many realistic inductive definitions.
 
@@ -104,16 +105,19 @@ inductive step : score → score → Prop
 | srv_30_40   : ∀n, step (30–n) (40–n)
 | srv_40_game : ∀n, n < 40 → step (40–n) score.game_srv
 | srv_40_adv  : step (40–40) score.adv_srv
+| srv_adv_40  : step score.adv_srv (40–40)
 | rcv_0_15    : ∀n, step (n–0) (n–15)
 | rcv_15_30   : ∀n, step (n–15) (n–30)
 | rcv_30_40   : ∀n, step (n–30) (n–40)
 | rcv_40_game : ∀n, n < 40 → step (n–40) score.game_rcv
 | rcv_40_adv  : step (40–40) score.adv_rcv
+| rcv_adv_40  : step score.adv_rcv (40–40)
 
 infixr ` ⇒ ` := step
 
-/-! We can ask—and formally answer—questions such as: Is this transition system
-confluent? Does it always terminate? Can the score 65–15 be reached from 0–0?
+/- We can ask, and formally answer, questions such as: Is this transition
+system confluent? Does it always terminate? Can the score 65–15 be reached from
+0–0?
 
 
 ### Reflexive Transitive Closure
@@ -126,7 +130,7 @@ inductive star {α : Type} (r : α → α → Prop) : α → α → Prop
 | refl (a : α)      : star a a
 | trans (a b c : α) : star a b → star b c → star a c
 
-/-! The first rule embeds `r` into `star r`. The second rule achieves the
+/- The first rule embeds `r` into `star r`. The second rule achieves the
 reflexive closure. The third rule achieves the transitive closure.
 
 The definition is truly elegant. If you doubt this, try implementing `star` as a
@@ -136,16 +140,16 @@ def star₂ {α : Type} (r : α → α → Prop) : α → α → Prop :=
 sorry
 
 
-/-! ### A Nonexample
+/- ### A Nonexample
 
 Not all inductive definitions admit a least solution. -/
 
 -- fails
-inductive illegal : Prop
-| intro : ¬ illegal → illegal
+inductive illegal₂ : Prop
+| intro : ¬ illegal₂ → illegal₂
 
 
-/-! ## Logical Symbols
+/- ## Logical Symbols
 
 The truth values `false` and `true`, the connectives `∧` and `∨`, the
 `∃`-quantifier, and the equality predicate `=` are all defined as inductive
@@ -191,7 +195,7 @@ end logical_symbols
 #print eq
 
 
-/-! ## Rule Induction
+/- ## Rule Induction
 
 Just as we can perform induction on a term, we can perform induction on a proof
 term.
@@ -203,12 +207,34 @@ correspondence, this works as expected. -/
 lemma mod_two_eq_zero_of_even (n : ℕ) (h : even n) :
   n % 2 = 0 :=
 begin
-  induction h,
+  induction' h,
   case even.zero {
     refl },
   case even.add_two : k hk ih {
     simp [ih] }
 end
+
+lemma not_even_two_mul_add_one (n : ℕ) :
+  ¬ even (2 * n + 1) :=
+begin
+  intro h,
+  induction' h,
+  apply ih (n - 1),
+  cases' n,
+  case zero {
+    linarith },
+  case succ {
+    simp [nat.succ_eq_add_one] at *,
+    linarith }
+end
+
+/- `linarith` proves goals involving linear arithmetic equalities or
+inequalities. "Linear" means it works only with `+` and `-`, not `*` and `/`
+(but multiplication by a constant is supported). -/
+
+lemma linarith_example (i : ℤ) (hi : i > 5) :
+  2 * i + 3 > 11 :=
+by linarith
 
 lemma star_star_iff_star {α : Type} (r : α → α → Prop)
     (a b : α) :
@@ -216,7 +242,7 @@ lemma star_star_iff_star {α : Type} (r : α → α → Prop)
 begin
   apply iff.intro,
   { intro h,
-    induction h,
+    induction' h,
     case star.base : a b hab {
       exact hab },
     case star.refl : a {
@@ -246,91 +272,23 @@ end
 #check propext
 
 
-/-! ## Rule Induction Pitfalls
-
-Inductive predicates often have arguments that evolve through the induction.
-Some care is necessary. -/
-
-lemma p_of_even (p : ℕ → Prop) (n : ℕ) :
-  even n → p n :=
-begin
-  intro h,
-  induction h,
-  case even.zero {
-    sorry },   -- looks reasonable
-  case even.add_two {
-    sorry }    -- looks reasonable
-end
-
-lemma not_even_2_mul_add_1_sorry (n : ℕ) :
-  ¬ even (2 * n + 1) :=
-begin
-  intro h,
-  induction h,
-  case even.zero {
-    sorry },   -- unprovable
-  case even.add_two : k hk ih {
-    exact ih }
-end
-
-lemma not_even_2_mul_add_1_sorry₂ (n : ℕ) :
-  ¬ even (2 * n + 1) :=
-begin
-  generalize hx : 2 * n + 1 = x,
-  intro h,
-  induction h,
-  case even.zero {
-    cases hx },
-  case even.add_two : k hk ih {
-    apply ih,
-    rewrite hx,
-    sorry }   -- unprovable
-end
-
-lemma not_even_2_mul_add_1 (n : ℕ) :
-  ¬ even (2 * n + 1) :=
-begin
-  generalize hx : 2 * n + 1 = x,
-  intro h,
-  induction h generalizing n,
-  case even.zero {
-    cases hx },
-  case even.add_two : k hk ih {
-    apply ih (n - 1),
-    cases n,
-    case nat.zero {
-      linarith },
-    case nat.succ : m {
-      simp [nat.succ_eq_add_one] at *,
-      linarith } }
-end
-
-/-! `linarith` proves goals involving linear arithmetic equalities or
-inequalities. "Linear" means it works only with `+` and `-`, not `*` and `/`
-(but multiplication by a constant is supported). -/
-
-lemma linarith_example (i : ℤ) (hi : i > 5) :
-  2 * i + 3 > 11 :=
-by linarith
-
-
-/-! ## Elimination
+/- ## Elimination
 
 Given an inductive predicate `p`, its introduction rules typically have the form
 `∀…, ⋯ → p …` and can be used to prove goals of the form `⊢ p …`.
 
 Elimination works the other way around: It extracts information from a lemma or
 hypothesis of the form `p …`. Elimination takes various forms: pattern matching,
-the `cases` and `induction` tactics, and custom elimination rules (e.g.,
+the `cases'` and `induction'` tactics, and custom elimination rules (e.g.,
 `and.elim_left`).
 
-* `cases` works roughly like `induction` but without induction hypothesis.
+* `cases'` works like `induction'` but without induction hypothesis.
 
 * `match` is available as well, but it corresponds to dependently typed pattern
   matching (cf. `vector` in lecture 4).
 
-Now we can finally analyze how `cases h`, where `h : l = r`, and how
-`cases classical.em h` work. -/
+Now we can finally analyze how `cases' h`, where `h : l = r`, and how
+`cases' classical.em h` work. -/
 
 #print eq
 
@@ -338,7 +296,7 @@ lemma cases_eq_example {α : Type} (l r : α) (h : l = r)
     (p : α → α → Prop) :
   p l r :=
 begin
-  cases h,
+  cases' h,
   sorry
 end
 
@@ -351,14 +309,14 @@ lemma cases_classical_em_example {α : Type} (a : α)
 begin
   have h : p a ∨ ¬ p a :=
     classical.em (p a),
-  cases h,
+  cases' h,
   case or.inl {
     sorry },
   case or.inr {
     sorry }
 end
 
-/-! Often it is convenient to rewrite concrete terms of the form `p (c …)`,
+/- Often it is convenient to rewrite concrete terms of the form `p (c …)`,
 where `c` is typically a constructor. We can state and prove an
 __inversion rule__ to support such eliminative reasoning.
 
@@ -376,7 +334,7 @@ lemma even_iff (n : ℕ) :
 begin
   apply iff.intro,
   { intro hn,
-    cases hn,
+    cases' hn,
     case even.zero {
       simp },
     case even.add_two : k hk {
@@ -384,12 +342,12 @@ begin
       apply exists.intro k,
       simp [hk] } },
   { intro hor,
-    cases hor,
+    cases' hor,
     case or.inl : heq {
       simp [heq, even.zero] },
     case or.inr : hex {
-      cases hex with k hand,
-      cases hand with heq hk,
+      cases' hex with k hand,
+      cases' hand with heq hk,
       simp [heq, even.add_two _ hk] } }
 end
 
@@ -422,7 +380,7 @@ iff.intro
    end)
 
 
-/-! ## Further Examples
+/- ## Further Examples
 
 ### Sorted Lists -/
 
@@ -445,35 +403,31 @@ lemma sorted_3_5 :
   sorted [3, 5] :=
 begin
   apply sorted.two_or_more,
-  { exact dec_trivial },
+  { linarith },
   { exact sorted.single }
 end
 
 lemma sorted_3_5₂ :
   sorted [3, 5] :=
-sorted.two_or_more dec_trivial sorted.single
+sorted.two_or_more (by linarith) sorted.single
 
 lemma sorted_7_9_9_11 :
   sorted [7, 9, 9, 11] :=
-sorted.two_or_more dec_trivial
-  (sorted.two_or_more dec_trivial
-     (sorted.two_or_more dec_trivial
+sorted.two_or_more (by linarith)
+  (sorted.two_or_more (by linarith)
+     (sorted.two_or_more (by linarith)
         sorted.single))
 
 lemma not_sorted_17_13 :
   ¬ sorted [17, 13] :=
-assume h : sorted [17, 13],
-have 17 ≤ 13 :=
-  match h with
-  | sorted.two_or_more hle _ := hle
-  end,
-have ¬ 17 ≤ 13 :=
-  dec_trivial,
-show false, from
-  by cc
+begin
+  intro h,
+  cases' h,
+  linarith
+end
 
 
-/-! ### Palindromes -/
+/- ### Palindromes -/
 
 inductive palindrome {α : Type} : list α → Prop
 | nil : palindrome []
@@ -500,18 +454,18 @@ lemma reverse_palindrome {α : Type} (xs : list α)
     (hxs : palindrome xs) :
   palindrome (reverse xs) :=
 begin
-  induction hxs,
-  case palindrome.nil {
+  induction' hxs,
+  case nil {
     exact palindrome.nil },
-  case palindrome.single : x {
+  case single {
     exact palindrome.single x },
-  case palindrome.sandwich : x xs hxs ih {
+  case sandwich {
     simp [reverse, reverse_append],
     exact palindrome.sandwich _ _ ih }
 end
 
 
-/-! ### Full Binary Trees -/
+/- ### Full Binary Trees -/
 
 #check btree
 
@@ -535,11 +489,11 @@ lemma is_full_mirror {α : Type} (t : btree α)
     (ht : is_full t) :
   is_full (mirror t) :=
 begin
-  induction ht,
-  case is_full.empty {
+  induction' ht,
+  case empty {
     exact is_full.empty },
-  case is_full.node : a l r hl hr hiff ih_l ih_r {
-    rewrite mirror,
+  case node : a l r hl hr hiff ih_l ih_r {
+    rw mirror,
     apply is_full.node,
     { exact ih_r },
     { exact ih_l },
@@ -557,7 +511,7 @@ lemma is_full_mirror₂ {α : Type} :
   begin
     intro ht,
     cases ht with _ _ _ hl hr hiff,
-    rewrite mirror,
+    rw mirror,
     apply is_full.node,
     { exact is_full_mirror₂ _ hr },
     { apply is_full_mirror₂ _ hl },
@@ -565,7 +519,7 @@ lemma is_full_mirror₂ {α : Type} :
   end
 
 
-/-! ### First-Order Terms -/
+/- ### First-Order Terms -/
 
 inductive term (α β : Type) : Type
 | var {} : β → term

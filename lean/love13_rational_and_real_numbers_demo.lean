@@ -1,7 +1,7 @@
 import .lovelib
 
 
-/-! # LoVe Demo 13: Rational and Real Numbers
+/- # LoVe Demo 13: Rational and Real Numbers
 
 We review the construction of `ℚ` and `ℝ` as quotient types.
 
@@ -20,41 +20,42 @@ We used this approach in lecture 11 to construct `ℤ`. It can be used for
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Rational Numbers
+/- ## Rational Numbers
 
 **Step 1:** A rational number is a number that can be expressed as a fraction
-`n/d` of integers `n` and `d ≠ 0`: -/
+`n / d` of integers `n` and `d ≠ 0`: -/
 
-structure fraction : Type :=
+structure fraction :=
 (num           : ℤ)
 (denom         : ℤ)
 (denom_ne_zero : denom ≠ 0)
 
-/-! The number `n` is called the numerator, and the number `d` is called the
+/- The number `n` is called the numerator, and the number `d` is called the
 denominator.
 
 The representation of a rational number as a fraction is not unique—e.g.,
-`1/2 = 2/4 = -1/-2`.
+`1 / 2 = 2 / 4 = -1 / -2`.
 
-**Step 2:** Two fractions `n₁/d₁` and `n₂/d₂` represent the same rational
+**Step 2:** Two fractions `n₁ / d₁` and `n₂ / d₂` represent the same rational
 number if the ratio between numerator and denominator are the same—i.e.,
 `n₁ * d₂ = n₂ * d₁`. This will be our equivalence relation `≈` on fractions. -/
 
 namespace fraction
 
 @[instance] def setoid : setoid fraction :=
-{ r     := λa b, num a * denom b = num b * denom a,
+{ r     := λa b : fraction, num a * denom b = num b * denom a,
   iseqv :=
     begin
       repeat { apply and.intro },
       { intros a; refl },
       { intros a b h; cc },
       { intros a b c eq_ab eq_bc,
-        apply eq_of_mul_eq_mul_right (denom_ne_zero b),
+        apply int.eq_of_mul_eq_mul_right (denom_ne_zero b),
         cc }
     end }
 
@@ -62,10 +63,10 @@ lemma setoid_iff (a b : fraction) :
   a ≈ b ↔ num a * denom b = num b * denom a :=
 by refl
 
-/-! **Step 3:** Define `0 := 0/1`, `1 := 1/1`, addition, multiplication, etc.
+/- **Step 3:** Define `0 := 0 / 1`, `1 := 1 / 1`, addition, multiplication, etc.
 
-    `n₁/d₁ + n₂/d₂`     := `(n₁ * d₂ + n₂ * d₁)/(d₁ * d₂)`
-    `(n₁/d₁) * (n₂/d₂)` := `(n₁ * n₂)/(d₁ * d₂)`
+    `n₁ / d₁ + n₂ / d₂`     := `(n₁ * d₂ + n₂ * d₁) / (d₁ * d₂)`
+    `(n₁ / d₁) * (n₂ / d₂)` := `(n₁ * n₂) / (d₁ * d₂)`
 
 Then show that they are compatible with `≈`. -/
 
@@ -99,18 +100,18 @@ lemma add_equiv_add {a a' b b' : fraction} (ha : a ≈ a')
     (hb : b ≈ b') :
   a + b ≈ a' + b' :=
 begin
-  simp [setoid_iff] at *,
+  simp [setoid_iff, add_denom, add_num] at *,
   calc  (num a * denom b + num b * denom a)
           * (denom a' * denom b')
       = num a * denom a' * denom b * denom b'
           + num b * denom b' * denom a * denom a' :
-    by simp [add_mul]; ac_refl
+    by simp [add_mul, mul_add]; ac_refl
   ... = num a' * denom a * denom b * denom b'
           + num b' * denom b * denom a * denom a' :
     by simp [*]
   ... = (num a' * denom b' + num b' * denom a')
           * (denom a * denom b) :
-    by simp [add_mul]; ac_refl
+    by simp [add_mul, mul_add]; ac_refl
 end
 
 @[instance] def has_neg : has_neg fraction :=
@@ -151,7 +152,7 @@ lemma setoid_mul {a a' b b' : fraction} (ha : a ≈ a')
 by simp [setoid_iff] at ha hb ⊢; cc
 
 @[instance] def has_inv : has_inv fraction :=
-{ inv := λa,
+{ inv := λa : fraction,
     if ha : num a = 0 then
       0
     else
@@ -172,25 +173,25 @@ dif_pos ha
 
 @[simp] lemma inv_num (a : fraction) (ha : num a ≠ 0) :
   num (a⁻¹) = denom a :=
-by rewrite inv_def a ha
+by rw inv_def a ha
 
 @[simp] lemma inv_denom (a : fraction) (ha : num a ≠ 0) :
   denom (a⁻¹) = num a :=
-by rewrite inv_def a ha
+by rw inv_def a ha
 
 lemma setoid_inv {a a' : fraction} (ha : a ≈ a') :
   a⁻¹ ≈ a'⁻¹ :=
 begin
-  cases classical.em (num a = 0),
+  cases' classical.em (num a = 0),
   case or.inl : ha0 {
-    cases classical.em (num a' = 0),
+    cases' classical.em (num a' = 0),
     case or.inl : ha'0 {
       simp [ha0, ha'0, inv_zero] },
     case or.inr : ha'0 {
       simp [ha0, ha'0, setoid_iff, denom_ne_zero] at ha,
       cc } },
   case or.inr : ha0 {
-    cases classical.em (num a' = 0),
+    cases' classical.em (num a' = 0),
     case or.inl : ha'0 {
       simp [setoid_iff, ha'0, denom_ne_zero] at ha,
       cc },
@@ -213,7 +214,7 @@ namespace rat
 { one := ⟦1⟧ }
 
 @[instance] def has_add : has_add rat :=
-{ add := quotient.lift₂ (λa b, ⟦a + b⟧)
+{ add := quotient.lift₂ (λa b : fraction, ⟦a + b⟧)
     begin
       intros a b a' b' ha hb,
       apply quotient.sound,
@@ -221,7 +222,7 @@ namespace rat
     end }
 
 @[instance] def has_neg : has_neg rat :=
-{ neg := quotient.lift (λa, ⟦- a⟧)
+{ neg := quotient.lift (λa : fraction, ⟦- a⟧)
     begin
       intros a a' ha,
       apply quotient.sound,
@@ -229,7 +230,7 @@ namespace rat
     end }
 
 @[instance] def has_mul : has_mul rat :=
-{ mul := quotient.lift₂ (λa b, ⟦a * b⟧)
+{ mul := quotient.lift₂ (λa b : fraction, ⟦a * b⟧)
     begin
       intros a b a' b' ha hb,
       apply quotient.sound,
@@ -237,7 +238,7 @@ namespace rat
     end }
 
 @[instance] def has_inv : has_inv rat :=
-{ inv := quotient.lift (λa, ⟦a⁻¹⟧)
+{ inv := quotient.lift (λa : fraction, ⟦a⁻¹⟧)
     begin
       intros a a' ha,
       apply quotient.sound,
@@ -247,7 +248,7 @@ namespace rat
 end rat
 
 
-/-! ### Alternative Definitions of `ℚ`
+/- ### Alternative Definitions of `ℚ`
 
 **Alternative 1:** Define `ℚ` as a subtype of `fraction`, with the requirement
 that the numerator and the denominator have no common divisors except `1` and
@@ -255,19 +256,21 @@ that the numerator and the denominator have no common divisors except `1` and
 
 namespace alternative_1
 
-def rat := {a : fraction //
-  nat.coprime (int.nat_abs (fraction.num a))
-    (int.nat_abs (fraction.denom a))}
+def rat.is_canonical (a : fraction) : Prop :=
+nat.coprime (int.nat_abs (fraction.num a))
+  (int.nat_abs (fraction.denom a))
+
+def rat := {a : fraction // rat.is_canonical a}
 
 end alternative_1
 
-/-! This is the definition used in `mathlib`.
+/- This is more or less the `mathlib` definition.
 
 Advantages:
 
 * no quotient required;
 * more efficient computation;
-* more properties are equalities up to computation.
+* more properties are syntactic equalities up to computation.
 
 Disadvantage:
 
@@ -286,7 +289,7 @@ inductive pre_rat : Type
 | mul  : pre_rat → pre_rat → pre_rat
 | div  : pre_rat → pre_rat → pre_rat
 
-/-! Then quotient `pre_rat` to enforce congruence rules and the field axioms: -/
+/- Then quotient `pre_rat` to enforce congruence rules and the field axioms: -/
 
 inductive rat.rel : pre_rat → pre_rat → Prop
 | add_congr {a b c d : pre_rat} :
@@ -304,7 +307,7 @@ quot rat.rel
 
 end alternative_2
 
-/-! Advantages:
+/- Advantages:
 
 * no dependency on `ℤ`;
 * easy proofs of the field axioms;
@@ -353,21 +356,21 @@ the sequence from which all following numbers deviate less than by `ε`. -/
 def is_cau_seq (f : ℕ → ℚ) : Prop :=
 ∀ε > 0, ∃N, ∀m ≥ N, abs (f N - f m) < ε
 
-/-! Not every sequence is a Cauchy sequence: -/
+/- Not every sequence is a Cauchy sequence: -/
 
 lemma id_not_cau_seq :
   ¬ is_cau_seq (λn : ℕ, (n : ℚ)) :=
 begin
-  rewrite is_cau_seq,
+  rw is_cau_seq,
   intro h,
-  cases h 1 zero_lt_one with i hi,
+  cases' h 1 zero_lt_one with i hi,
   have hi_succi :=
     hi (i + 1) (by simp),
-  simp at hi_succi,
+  simp [←sub_sub] at hi_succi,
   linarith
 end
 
-/-! We define a type of Cauchy sequences as a subtype: -/
+/- We define a type of Cauchy sequences as a subtype: -/
 
 def cau_seq : Type :=
 {f : ℕ → ℚ // is_cau_seq f}
@@ -375,9 +378,9 @@ def cau_seq : Type :=
 def seq_of (f : cau_seq) : ℕ → ℚ :=
 subtype.val f
 
-/-! Cauchy sequences represent real numbers:
+/- Cauchy sequences represent real numbers:
 
-* `a_n = 1/n` represents the real number `0`;
+* `a_n = 1 / n` represents the real number `0`;
 * `1, 1.4, 1.41, …` represents the real number `√2`;
 * `a_n = 0` also represents the real number `0`.
 
@@ -398,14 +401,14 @@ namespace cau_seq
         finish },
       apply and.intro,
       { intros f g hfg ε hε,
-        cases hfg ε hε with N hN,
+        cases' hfg ε hε with N hN,
         apply exists.intro N,
         intros m hm,
-        rewrite abs_sub,
+        rw abs_sub,
         apply hN m hm },
       { intros f g h hfg hgh ε hε,
-        cases hfg (ε / 2) (half_pos hε) with N₁ hN₁,
-        cases hgh (ε / 2) (half_pos hε) with N₂ hN₂,
+        cases' hfg (ε / 2) (half_pos hε) with N₁ hN₁,
+        cases' hgh (ε / 2) (half_pos hε) with N₂ hN₂,
         apply exists.intro (max N₁ N₂),
         intros m hm,
         calc  abs (seq_of f m - seq_of h m)
@@ -424,19 +427,20 @@ lemma setoid_iff (f g : cau_seq) :
   ∀ε > 0, ∃N, ∀m ≥ N, abs (seq_of f m - seq_of g m) < ε :=
 by refl
 
-/-! We can define constants such as `0` and `1` as a constant sequence. Any
+/- We can define constants such as `0` and `1` as a constant sequence. Any
 constant sequence is a Cauchy sequence: -/
 
 def const (q : ℚ) : cau_seq :=
-subtype.mk (λ_, q) (by rewrite is_cau_seq; intros ε hε; finish)
+subtype.mk (λ_ : ℕ, q) (by rw is_cau_seq; intros ε hε; finish)
 
-/-! Defining addition of real numbers requires a little more effort. We define
+/- Defining addition of real numbers requires a little more effort. We define
 addition on Cauchy sequences as pairwise addition: -/
 
 @[instance] def has_add : has_add cau_seq :=
-{ add := λf g, subtype.mk (λn, seq_of f n + seq_of g n) sorry }
+{ add := λf g : cau_seq,
+    subtype.mk (λn : ℕ, seq_of f n + seq_of g n) sorry }
 
-/-! Above, we omit the proof that the addition of two Cauchy sequences is again
+/- Above, we omit the proof that the addition of two Cauchy sequences is again
 a Cauchy sequence.
 
 Next, we need to show that this addition is compatible with `≈`: -/
@@ -447,8 +451,8 @@ lemma add_equiv_add {f f' g g' : cau_seq} (hf : f ≈ f')
 begin
   intros ε₀ hε₀,
   simp [setoid_iff],
-  cases hf (ε₀ / 2) (half_pos hε₀) with Nf hNf,
-  cases hg (ε₀ / 2) (half_pos hε₀) with Ng hNg,
+  cases' hf (ε₀ / 2) (half_pos hε₀) with Nf hNf,
+  cases' hg (ε₀ / 2) (half_pos hε₀) with Ng hNg,
   apply exists.intro (max Nf Ng),
   intros m hm,
   calc  abs (seq_of (f + g) m - seq_of (f' + g') m)
@@ -457,7 +461,13 @@ begin
     by refl
   ... = abs ((seq_of f m - seq_of f' m)
            + (seq_of g m - seq_of g' m)) :
-    by simp
+    begin
+      have arg_eq :
+        seq_of f m + seq_of g m - (seq_of f' m + seq_of g' m) =
+        seq_of f m - seq_of f' m + (seq_of g m - seq_of g' m),
+        by linarith,
+      rw arg_eq
+    end
   ... ≤ abs (seq_of f m - seq_of f' m)
       + abs (seq_of g m - seq_of g' m) :
     by apply abs_add
@@ -470,7 +480,7 @@ end
 
 end cau_seq
 
-/-! The real numbers are the quotient: -/
+/- The real numbers are the quotient: -/
 
 def real : Type :=
 quotient cau_seq.setoid
@@ -484,7 +494,7 @@ namespace real
 { one := ⟦cau_seq.const 1⟧ }
 
 @[instance] def has_add : has_add real :=
-{ add := quotient.lift₂ (λa b, ⟦a + b⟧)
+{ add := quotient.lift₂ (λa b : cau_seq, ⟦a + b⟧)
     begin
       intros a b a' b' ha hb,
       apply quotient.sound,
@@ -494,7 +504,7 @@ namespace real
 end real
 
 
-/-! ### Alternative Definitions of `ℝ`
+/- ### Alternative Definitions of `ℝ`
 
 * Dedekind cuts: `r : ℝ` is represented essentially as `{x : ℚ | x < r}`.
 

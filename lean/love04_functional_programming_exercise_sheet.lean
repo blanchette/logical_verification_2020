@@ -1,15 +1,16 @@
 import .love03_forward_proofs_demo
 
 
-/-! # LoVe Exercise 4: Functional Programming -/
+/- # LoVe Exercise 4: Functional Programming -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Question 1: Reverse of a List
+/- ## Question 1: Reverse of a List
 
 We define a new accumulator-based version of `reverse`. The first argument,
 `as`, serves as the accumulator. This definition is __tail-recursive__, meaning
@@ -20,22 +21,22 @@ def accurev {α : Type} : list α → list α → list α
 | as []        := as
 | as (x :: xs) := accurev (x :: as) xs
 
-/-! 1.1. Our intention is that `accurev [] xs` should be equal to `reverse xs`.
+/- 1.1. Our intention is that `accurev [] xs` should be equal to `reverse xs`.
 But if we start an induction, we quickly see that the induction hypothesis is
 not strong enough. Start by proving the following generalization (using the
-`induction` tactic or pattern matching): -/
+`induction'` tactic or pattern matching): -/
 
 lemma accurev_eq_reverse_append {α : Type} :
   ∀as xs : list α, accurev as xs = reverse xs ++ as :=
 sorry
 
-/-! 1.2. Derive the desired equation. -/
+/- 1.2. Derive the desired equation. -/
 
 lemma accurev_eq_reverse {α : Type} (xs : list α) :
   accurev [] xs = reverse xs :=
 sorry
 
-/-! 1.3. Prove the following property.
+/- 1.3. Prove the following property.
 
 Hint: A one-line inductionless proof is possible. -/
 
@@ -43,7 +44,7 @@ lemma accurev_accurev {α : Type} (xs : list α) :
   accurev [] (accurev [] xs) = xs :=
 sorry
 
-/-! 1.4. Prove the following lemma by structural induction, as a "paper" proof.
+/- 1.4. Prove the following lemma by structural induction, as a "paper" proof.
 This is a good exercise to develop a deeper understanding of how structural
 induction works (and is good practice for the final exam).
 
@@ -69,7 +70,7 @@ function definition or an introduction rule for an inductive predicate. -/
 -- enter your paper proof here
 
 
-/-! ## Question 2: Drop and Take
+/- ## Question 2: Drop and Take
 
 The `drop` function removes the first `n` elements from the front of a list. -/
 
@@ -78,7 +79,7 @@ def drop {α : Type} : ℕ → list α → list α
 | (_ + 1) []        := []
 | (m + 1) (x :: xs) := drop m xs
 
-/-! Its relative `take` returns a list consisting of the the first `n` elements
+/- Its relative `take` returns a list consisting of the the first `n` elements
 at the front of a list.
 
 2.1. Define `take`.
@@ -97,7 +98,7 @@ sorry
 
 #eval take 2 ["a", "b", "c"]   -- expected: ["a", "b"]
 
-/-! 2.2. Prove the following lemmas, using `induction` or pattern matching.
+/- 2.2. Prove the following lemmas, using `induction'` or pattern matching.
 Notice that they are registered as simplification rules thanks to the `@[simp]`
 attribute. -/
 
@@ -109,7 +110,7 @@ sorry
   ∀n : ℕ, take n ([] : list α) = [] :=
 sorry
 
-/-! 2.3. Follow the recursion pattern of `drop` and `take` to prove the
+/- 2.3. Follow the recursion pattern of `drop` and `take` to prove the
 following lemmas. In other words, for each lemma, there should be three cases,
 and the third case will need to invoke the induction hypothesis.
 
@@ -132,7 +133,7 @@ lemma take_drop {α : Type} :
 sorry
 
 
-/-! ## Question 3: A Type of λ-Terms
+/- ## Question 3: A Type of λ-Terms
 
 3.1. Define an inductive type corresponding to the untyped λ-terms, as given
 by the following context-free grammar:
@@ -143,7 +144,7 @@ by the following context-free grammar:
 
 -- enter your definition here
 
-/-! 3.2. Register a textual representation of the type `term` as an instance of
+/- 3.2. Register a textual representation of the type `term` as an instance of
 the `has_repr` type class. Make sure to supply enough parentheses to guarantee
 that the output is unambiguous. -/
 
@@ -153,7 +154,7 @@ def term.repr : term → string
 @[instance] def term.has_repr : has_repr term :=
 { repr := term.repr }
 
-/-! 3.3. Test your textual representation: -/
+/- 3.3. Test your textual representation: -/
 
 #eval (term.lam "x" (term.app (term.app (term.var "y") (term.var "x"))
     (term.var "x")))

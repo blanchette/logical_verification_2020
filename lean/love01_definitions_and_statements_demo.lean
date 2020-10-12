@@ -1,7 +1,7 @@
 import .lovelib
 
 
-/-! # LoVe Demo 1: Definitions and Statements
+/- # LoVe Demo 1: Definitions and Statements
 
 We introduce the basics of Lean and proof assistants, without trying to carry
 out actual proofs yet. We focus on specifying objects and statements of their
@@ -9,11 +9,13 @@ intended properties. -/
 
 
 set_option pp.beta true
+set_option pp.generalized_field_notation false
+set_option pp.generalized_field_notation false
 
 namespace LoVe
 
 
-/-! ## Proof Assistants
+/- ## Proof Assistants
 
 Proof assistants (also called interactive theorem provers)
 
@@ -94,7 +96,7 @@ The file you are currently looking at is a demo. There are
 
 You may submit at most 10 homework, or at most 8 homework and the project.
 Homework, including the project, must be done individually. The homework builds
-on the exercises, which build on the demoes.
+on the exercises, which build on the demos.
 
 
 ### The Hitchhiker's Guide to Logical Verification
@@ -118,9 +120,9 @@ on paper.
 We want you to
 
 * master fundamental theory and techniques in interactive theorem proving;
-* famliarize yourselves with some application areas;
-* develop some practical skills which you can apply on a larger project (as a
-  hobby, for an MSc or PhD, or in industry);
+* familiarize yourselves with some application areas;
+* develop some practical skills you can apply on a larger project (as a hobby,
+  for an MSc or PhD, or in industry);
 * feel ready to move to another proof assistant and apply what you have learned;
 * understand the domain well enough to start reading scientific papers.
 
@@ -132,16 +134,18 @@ vehicle, not an end in itself.
 
 In a first approximation:
 
-    Lean = typed functional programming + logic
+    Lean = functional programming + logic
 
 In today's lecture, we cover inductive types, recursive functions, and lemma
 statements.
 
 If you are not familiar with typed functional programming (e.g., Haskell, ML,
-OCaml, Scala), we recommend that you study a tutorial, such as the first five
-and a half chapters of __Learn You a Haskell for Great Good!__:
+OCaml, Scala), we recommend that you study a tutorial, such as the first
+chapters of the online tutorial __Learn You a Haskell for Great Good!__:
 
     http://learnyouahaskell.com/chapters
+
+Make sure to at least reach the section titled "Lambdas".
 
 
 ## Types and Terms
@@ -207,7 +211,7 @@ constant trool : Type
 constants trool.true trool.false trool.maybe : trool
 
 
-/-! ### Type Checking and Type Inference
+/- ### Type Checking and Type Inference
 
 Type checking and type inference are decidable problems, but this property is
 quickly lost if features such as overloading or subtyping are added.
@@ -250,7 +254,7 @@ def some_fun_of_type : (α → β → γ) → ((β → α) → β) → α → γ
 λf g a, f a (g (λb, a))
 
 
-/-! ## Type Definitions
+/- ## Type Definitions
 
 An __inductive type__ (also called __inductive datatype__,
 __algebraic datatype__, or just __datatype__) is a type that consists all the
@@ -262,7 +266,7 @@ __constructors__, and only those.
 
 namespace my_nat
 
-/-! Definition of type `nat` (= `ℕ`) of natural numbers, using Peano-style unary
+/- Definition of type `nat` (= `ℕ`) of natural numbers, using Peano-style unary
 notation: -/
 
 inductive nat : Type
@@ -279,7 +283,7 @@ end my_nat
 #print ℕ
 
 
-/-! ### Arithmetic Expressions -/
+/- ### Arithmetic Expressions -/
 
 inductive aexp : Type
 | num : ℤ → aexp
@@ -290,7 +294,7 @@ inductive aexp : Type
 | div : aexp → aexp → aexp
 
 
-/-! ### Lists -/
+/- ### Lists -/
 
 namespace my_list
 
@@ -306,7 +310,7 @@ end my_list
 #print list
 
 
-/-! ## Function Definitions
+/- ## Function Definitions
 
 The syntax for defining a function operating on an inductive type is very
 compact: We define a single function and use __pattern matching__ to extract the
@@ -358,7 +362,7 @@ def append (α : Type) : list α → list α → list α
 #check append
 #eval append _ [3, 1] [4, 1, 5]
 
-/-! Aliases:
+/- Aliases:
 
     `[]`          := `nil`
     `x :: xs`     := `cons x xs`
@@ -390,7 +394,7 @@ def eval (env : string → ℤ) : aexp → ℤ
 | (aexp.mul e₁ e₂) := eval e₁ * eval e₂
 | (aexp.div e₁ e₂) := eval e₁ / eval e₂
 
-/-! Lean only accepts the function definitions for which it can prove
+/- Lean only accepts the function definitions for which it can prove
 termination. In particular, it accepts __structurally recursive__ functions,
 which peel off exactly one constructor at a time.
 
@@ -425,7 +429,7 @@ lemma reverse_reverse {α : Type} (xs : list α) :
   reverse (reverse xs) = xs :=
 sorry
 
-/-! Axioms are like lemmas but without proofs (`:= …`). Constant declarations
+/- Axioms are like lemmas but without proofs (`:= …`). Constant declarations
 are like definitions but without bodies (`:= …`). -/
 
 constants a b : ℤ
