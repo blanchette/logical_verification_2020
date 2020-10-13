@@ -119,7 +119,7 @@ lean --make lean
 * Launch VSCode.
 
 * In the `File` menu, click `Open Folder`, and choose the folder
-  `logical_verification_2019` (not one of its subfolders). If you used
+  `logical_verification_2020` (not one of its subfolders). If you used
   `~/Documents` above, it will be located in your `Documents` folder.
 
 * In the file explorer on the left-hand side, you will find all
@@ -161,7 +161,7 @@ lean --make lean
 * Launch VScode, either through your application menu or by typing `code`.
 
 * On the main screen, or in the `File` menu, click `Open Folder`, and choose
-  the folder `logical_verification_2019` (not one of its subfolders).
+  the folder `logical_verification_2020` (not one of its subfolders).
 
 * In the file explorer on the left-hand side, you will find all exercises and
   homework in the `lean` folder, as we upload them.
@@ -212,7 +212,7 @@ lean --make lean
 * Open VScode again.
 
 * In the `File` menu, click `Open`, and choose the folder
-  `logical_verification_2019` (not one of its subfolders). If you used
+  `logical_verification_2020` (not one of its subfolders). If you used
   `~/Documents` above, it will be in the `Documents` folder.
 
 * In the file explorer on the left-hand side, you will find all exercises and
@@ -241,7 +241,7 @@ Coming soon.
 
 * Select the `.ova` file you downloaded, click `Continue` and then `Import`.
 
-* Start the virtual machine by selecting `logical_verification_2019` and
+* Start the virtual machine by selecting `logical_verification_2020` and
   clicking the `Start` button and wait for the system to boot.
 
 * Open VSCode by clicking on the blue ribbon icon on the left.
