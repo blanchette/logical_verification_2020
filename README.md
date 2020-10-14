@@ -115,6 +115,8 @@ cd logical_verification_2020
 lean --make lean
 ```
 
+The last command should produce a long list of warnings and errors which you can ignore.
+
 * Launch VSCode.
 
 * In the `File` menu, click `Open Folder`, and choose the folder
@@ -157,6 +159,8 @@ leanproject get blanchette/logical_verification_2020
 cd logical_verification_2020
 lean --make lean
 ```
+
+The last command should produce a long list of warnings and errors which you can ignore.
 
 * Launch VScode, either through your application menu or by typing `code`.
 
@@ -210,6 +214,8 @@ leanproject get blanchette/logical_verification_2020
 cd logical_verification_2020
 lean --make lean
 ```
+
+The last command should produce a long list of warnings and errors which you can ignore.
 
 * Open VScode again.
 
