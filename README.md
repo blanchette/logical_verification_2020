@@ -1,8 +1,7 @@
 # Logical Verification 2020 - Installation Instructions
 
-We have installation instructions for Windows, Linux, and MacOS.
-As a backup plan, we will prepare a virtual machine on which
-Lean is already installed. Check back soon!
+We have installation instructions for Windows, Linux, and MacOS. As a backup
+plan, we provide a virtual machine on which Lean is already installed.
 
 These directions are adapted from the
 [leanprover-community](https://leanprover-community.github.io/get_started.html#regular-install)
@@ -135,16 +134,17 @@ as we upload them.
 ## Debian/Ubuntu and Derivates
 
 These instructions are also in a [YouTube video](https://www.youtube.com/watch?v=02ff4WrW0FU),
-not including the LV details.
+not including the Logical Verification repository details.
 
 ### Install Lean
 
-* Open a terminal.
+* Open a terminal, enter the following command and hit enter. (This will take some time.)
 
 ```bash
 wget -q https://raw.githubusercontent.com/leanprover-community/mathlib-tools/master/scripts/install_debian.sh && bash install_debian.sh ; rm -f install_debian.sh && source ~/.profile
 ```
-(will take some time)
+
+* You may have to log out and log in again to make sure that the `lean` command is on your `PATH`.
 
 
 ### Install our Logical Verification Repository
@@ -175,8 +175,10 @@ lean --make lean
 
 ## Other Linux Distros
 
-Follow [these instructions](https://leanprover-community.github.io/install/linux.html) and proceed by the instructions "Install our logical verification repository"
-for Debian/Ubunutu above.
+Follow [these
+instructions](https://leanprover-community.github.io/install/linux.html) and
+proceed by the instructions "Install our logical verification repository" for
+Debian/Ubunutu above.
 
 </details>
 
@@ -184,17 +186,17 @@ for Debian/Ubunutu above.
 
 ## macOS
 
-These instructions are also in a [YouTube video](https://www.youtube.com/watch?v=NOGWsCNm_FY&ab_channel=leanprovercommunity), not including the LV repository details.
+These instructions are also in a [YouTube
+video](https://www.youtube.com/watch?v=NOGWsCNm_FY&ab_channel=leanprovercommunity),
+not including the Logical Verification repository details.
 
 ### Install Lean
 
-* Open a terminal.
-
+* Open a terminal, enter the following command and hit enter. (This will take some time.)
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/leanprover-community/mathlib-tools/master/scripts/install_macos.sh)" && source ~/.profile
 ```
-(will take some times)
 
 ### Install our Logical Verification Repository
 
@@ -227,26 +229,33 @@ lean --make lean
 
 ## Virtual Machine
 
-Coming soon.
-
-<!-- * Download and install [VirtualBox](https://www.virtualbox.org/).
+* Download and install [VirtualBox](https://www.virtualbox.org/).
   (Other virtualization software should also work.)
 
 * Download the virtual machine from
-  https://drive.google.com/drive/folders/15R22c3iiYn4a2USkOFU6PvW6KbsS4-B0?usp=sharing.
+  https://drive.google.com/file/d/1GUoJx8WwxN-kkxcsTqNlV2fOtve2nAAn/view?usp=sharing
+
+  (2.4G download; SHA256: `3052ce0d3c4c89b3c4d0f60670cb9a62d5dc0375530006de34f66e9411ad4d3e`)
 
 * Open VirtualBox.
 
-* Import the downloaded file via `File > Import Appliance`.
-
-* Select the `.ova` file you downloaded, click `Continue` and then `Import`.
+* Import the downloaded file, `logical_verification_2020.ova`, via `File >
+  Import Appliance`. This requires around 6GB of disk space. The virtual machine
+  is configured to use 4 processor cores and up to 5GB of RAM. It uses around
+  4GB of RAM if you open all the Lean files in VSCode.
 
 * Start the virtual machine by selecting `logical_verification_2020` and
-  clicking the `Start` button and wait for the system to boot.
+  clicking the `Start` button.
 
-* Open VSCode by clicking on the blue ribbon icon on the left.
+* Open VSCode by clicking on the blue ribbon icon on the desktop. VSCode should
+  automatically open the folder `~/logical_verification_2020`. In the file
+  explorer on the left-hand side, you will find all exercises and homework in
+  the `lean` folder, as we upload them.
+
+* You can retrieve the newest exercises and homework that we upload by
+  clicking the two arrows forming a circle in the bottom left corner.
 
 * If you need the password for the virtual machine at some point, it is
-  `love`. -->
+  `love`.
 
 </details>
