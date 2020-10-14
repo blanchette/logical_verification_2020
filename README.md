@@ -232,17 +232,20 @@ lean --make lean
 * Download and install [VirtualBox](https://www.virtualbox.org/).
   (Other virtualization software should also work.)
 
-* Download the virtual machine from
+* Download the virtual machine, `logical_verification_2020.ova` (2.4GB), from
   https://drive.google.com/file/d/1GUoJx8WwxN-kkxcsTqNlV2fOtve2nAAn/view?usp=sharing
 
-  (2.4G download; SHA256: `3052ce0d3c4c89b3c4d0f60670cb9a62d5dc0375530006de34f66e9411ad4d3e`)
+  SHA256:
+  ```
+  3052ce0d3c4c89b3c4d0f60670cb9a62d5dc0375530006de34f66e9411ad4d3e  logical_verification_2020.ova
+  ```
 
 * Open VirtualBox.
 
-* Import the downloaded file, `logical_verification_2020.ova`, via `File >
-  Import Appliance`. This requires around 6GB of disk space. The virtual machine
-  is configured to use 4 processor cores and up to 5GB of RAM. It uses around
-  4GB of RAM if you open all the Lean files in VSCode.
+* Import the downloaded file via `File > Import Appliance`. This requires around
+  6GB of disk space. The virtual machine is configured to use 4 processor cores
+  and up to 5GB of RAM. It uses around 4GB of RAM if you open all the Lean files
+  in VSCode.
 
 * Start the virtual machine by selecting `logical_verification_2020` and
   clicking the `Start` button.
