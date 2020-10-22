@@ -1,18 +1,20 @@
-# Logical Verification 2020 - Installation Instructions
+# Logical Verification 2020: Installation Instructions
 
-We have installation instructions for Windows, Linux, and MacOS. As a backup
+We have installation instructions for Windows, Linux, and macOS. As a backup
 plan, we provide a virtual machine on which Lean is already installed.
 
 These directions are adapted from the
 [leanprover-community](https://leanprover-community.github.io/get_started.html#regular-install)
-webpage.
+web page.
 
 <details><summary>Windows</summary>
+
 
 ## Windows
 
 These instructions are also covered in a [YouTube video](https://www.youtube.com/watch?v=y3GsHIe4wZ4).
 This does not include the "Install our Logical Verification Repository" step.
+
 
 ### Get Lean
 
@@ -63,6 +65,7 @@ search bar.
 * Test whether everything is working by typing `python3 --version` and `pip3 --version`. If both commands give a short output and no error, everything is set up correctly.
   * If `pip3 --version` doesn't give any output, run the command `python3 -m pip install --upgrade pip`, which should fix it.
 
+
 ### Configure Git
 
 * Run `git config --global core.autocrlf input` in Git Bash.
@@ -75,6 +78,7 @@ search bar.
 ```bash
 pip3 install mathlibtools
 ```
+
 
 ### Install and Configure the Editor
 
@@ -133,10 +137,12 @@ as we upload them.
 
 <details><summary>Debian/Ubuntu and Derivates</summary>
 
+
 ## Debian/Ubuntu and Derivates
 
 These instructions are also in a [YouTube video](https://www.youtube.com/watch?v=02ff4WrW0FU),
 not including the Logical Verification repository details.
+
 
 ### Install Lean
 
@@ -177,6 +183,7 @@ The last command should produce a long list of warnings and errors which you can
 
 <details><summary>Other Linux Distros</summary>
 
+
 ## Other Linux Distros
 
 Follow [these
@@ -188,11 +195,13 @@ Debian/Ubunutu above.
 
 <details><summary>macOS</summary>
 
+
 ## macOS
 
 These instructions are also in a [YouTube
 video](https://www.youtube.com/watch?v=NOGWsCNm_FY&ab_channel=leanprovercommunity),
 not including the Logical Verification repository details.
+
 
 ### Install Lean
 
@@ -201,6 +210,7 @@ not including the Logical Verification repository details.
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/leanprover-community/mathlib-tools/master/scripts/install_macos.sh)" && source ~/.profile
 ```
+
 
 ### Install our Logical Verification Repository
 
@@ -232,6 +242,7 @@ The last command should produce a long list of warnings and errors which you can
 </details>
 
 <details><summary>Virtual Machine (for Any Operating System)</summary>
+
 
 ## Virtual Machine
 
