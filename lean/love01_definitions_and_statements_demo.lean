@@ -101,6 +101,7 @@ on the exercises, which build on the demos.
 ### The Hitchhiker's Guide to Logical Verification
 
     https://github.com/blanchette/logical_verification_2020/blob/master/hitchhikers_guide.pdf
+    https://github.com/blanchette/logical_verification_2020/blob/master/hitchhikers_guide_tablet.pdf
 
 The lecture notes consist of a preface and 13 chapters. They cover the same
 material as the corresponding lectures but with more details. Sometimes there
