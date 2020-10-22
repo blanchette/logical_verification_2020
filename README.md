@@ -238,12 +238,12 @@ The last command should produce a long list of warnings and errors which you can
 * Download and install [VirtualBox](https://www.virtualbox.org/).
   (Other virtualization software should also work.)
 
-* Download the virtual machine, `logical_verification_2020.ova` (2.4GB), from
-  https://drive.google.com/file/d/1GUoJx8WwxN-kkxcsTqNlV2fOtve2nAAn/view?usp=sharing
+* Download the virtual machine, `logical_verification_2020.ova` (2.8G), from
+  [Google Drive](https://drive.google.com/file/d/1oqV8ckyUN_jwLTOOB-DfYn4p2E-xwFs1/view?usp=sharing).
 
   SHA256:
   ```
-  3052ce0d3c4c89b3c4d0f60670cb9a62d5dc0375530006de34f66e9411ad4d3e  logical_verification_2020.ova
+  055d8a81ba1b48c9ae30b05c0a736f7aacc0b1a37133c8c681be47e040a50be6  logical_verification_2020.ova
   ```
 
 * Open VirtualBox.
