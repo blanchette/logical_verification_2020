@@ -115,8 +115,8 @@ We want you to
 * feel ready to move to another proof assistant and apply what you have learned;
 * understand the domain well enough to start reading scientific papers.
 
-This course is neither a pure metatheory course nor a Lean tutorial. Lean is our
-vehicle, not an end in itself.
+This course is neither a pure logical foundations course nor a Lean tutorial.
+Lean is our vehicle, not an end in itself.
 
 
 # LoVe Demo 1: Definitions and Statements
