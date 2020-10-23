@@ -75,9 +75,9 @@ This does not include the "Install our Logical Verification Repository" step.
 
 * in Git Bash, run
 
-```bash
-pip3 install mathlibtools
-```
+  ```bash
+  pip3 install mathlibtools
+  ```
 
 
 ### Install and Configure the Editor
