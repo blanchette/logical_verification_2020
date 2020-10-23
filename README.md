@@ -25,7 +25,7 @@ This does not include the "Install our Logical Verification Repository" step.
   question).
 
 * Start the newly installed `Git Bash` by searching for it in the Windows
-search bar.
+  search bar.
 
 * In Git Bash, run the command `curl https://raw.githubusercontent.com/Kha/elan/master/elan-init.sh -sSf | sh`.
 
@@ -109,17 +109,20 @@ pip3 install mathlibtools
 
 * Open Git Bash.
 
-* In Git Bash, use `cd` to go to the directory you want to place the project in  (a new folder will be created for it at that location). For instance, you can use `cd ~/Documents` to go to your personal Documents folder.
+* In Git Bash, use `cd` to go to the directory you want to place the project in
+  (a new folder will be created for it at that location). For instance, you can
+  use `cd ~/Documents` to go to your personal Documents folder.
 
 * Run these commands in Git Bash:
 
-```bash
-leanproject get blanchette/logical_verification_2020
-cd logical_verification_2020
-lean --make lean
-```
+  ```bash
+  leanproject get blanchette/logical_verification_2020
+  cd logical_verification_2020
+  lean --make lean
+  ```
 
-The last command should produce a long list of warnings and errors which you can ignore.
+  The last command should produce a long list of warnings and errors which you
+  can ignore.
 
 * Launch VSCode.
 
@@ -127,11 +130,11 @@ The last command should produce a long list of warnings and errors which you can
   `logical_verification_2020` (not one of its subfolders). If you used
   `~/Documents` above, it will be located in your `Documents` folder.
 
-* In the file explorer on the left-hand side, you will find all
-exercises and homework in the `lean` folder,
-as we upload them.
+* In the file explorer on the left-hand side, you will find all exercises and
+  homework in the `lean` folder, as we upload them.
 
-* You can retrieve the newest exercises and homework that we upload by clicking the two arrows forming a circle in the bottom left corner.
+* You can retrieve the newest exercises and homework that we upload by clicking
+  the two arrows forming a circle in the bottom left corner.
 
 </details>
 
@@ -146,13 +149,15 @@ not including the Logical Verification repository details.
 
 ### Install Lean
 
-* Open a terminal, enter the following command and hit enter. (This will take some time.)
+* Open a terminal, enter the following command and hit enter. (This will take
+  some time.)
 
-```bash
-wget -q https://raw.githubusercontent.com/leanprover-community/mathlib-tools/master/scripts/install_debian.sh && bash install_debian.sh ; rm -f install_debian.sh && source ~/.profile
-```
+  ```bash
+  wget -q https://raw.githubusercontent.com/leanprover-community/mathlib-tools/master/scripts/install_debian.sh && bash install_debian.sh ; rm -f install_debian.sh && source ~/.profile
+  ```
 
-* You may have to log out and log in again to make sure that the `lean` command is on your `PATH`.
+* You may have to log out and log in again to make sure that the `lean` command
+  is on your `PATH`.
 
 
 ### Install our Logical Verification Repository
@@ -160,13 +165,14 @@ wget -q https://raw.githubusercontent.com/leanprover-community/mathlib-tools/mas
 * Use `cd` to go to the directory you want to place the project in. (A new
   folder will be created for it at that location.)
 
-```bash
-leanproject get blanchette/logical_verification_2020
-cd logical_verification_2020
-lean --make lean
-```
+  ```bash
+  leanproject get blanchette/logical_verification_2020
+  cd logical_verification_2020
+  lean --make lean
+  ```
 
-The last command should produce a long list of warnings and errors which you can ignore.
+  The last command should produce a long list of warnings and errors which you
+  can ignore.
 
 * Launch VScode, either through your application menu or by typing `code`.
 
@@ -205,27 +211,30 @@ not including the Logical Verification repository details.
 
 ### Install Lean
 
-* Open a terminal, enter the following command and hit enter. (This will take some time.)
+* Open a terminal, enter the following command and hit enter. (This will take
+  some time.)
 
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/leanprover-community/mathlib-tools/master/scripts/install_macos.sh)" && source ~/.profile
-```
+  ```bash
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/leanprover-community/mathlib-tools/master/scripts/install_macos.sh)" && source ~/.profile
+  ```
 
 
 ### Install our Logical Verification Repository
 
 * Open a terminal.
 
-* Use `cd` to go to the directory you want to place the project in  (a new folder will be created for it at that location),
-for example you can use `~/Documents`.
+* Use `cd` to go to the directory you want to place the project in (a new folder
+  will be created for it at that location), for example you can use
+  `~/Documents`.
 
-```bash
-leanproject get blanchette/logical_verification_2020
-cd logical_verification_2020
-lean --make lean
-```
+  ```bash
+  leanproject get blanchette/logical_verification_2020
+  cd logical_verification_2020
+  lean --make lean
+  ```
 
-The last command should produce a long list of warnings and errors which you can ignore.
+  The last command should produce a long list of warnings and errors which you
+  can ignore.
 
 * Open VScode again.
 
