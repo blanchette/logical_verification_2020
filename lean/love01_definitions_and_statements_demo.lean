@@ -1,20 +1,9 @@
 import .lovelib
 
 
-/- # LoVe Demo 1: Definitions and Statements
+/- # LoVe Preface
 
-We introduce the basics of Lean and proof assistants, without trying to carry
-out actual proofs yet. We focus on specifying objects and statements of their
-intended properties. -/
-
-
-set_option pp.beta true
-set_option pp.generalized_field_notation false
-
-namespace LoVe
-
-
-/- ## Proof Assistants
+## Proof Assistants
 
 Proof assistants (also called interactive theorem provers)
 
@@ -56,7 +45,7 @@ Its mathematical library, `mathlib`, is developed under the leadership of
 Jeremy Avigad (Carnegie Mellon University).
 
 We use community version 3.5.1. We use its basic libraries, `mathlib`, and
-LoVelib`. Lean is a research project, with some rough edges.
+`LoVelib`. Lean is a research project.
 
 Strengths:
 
@@ -130,7 +119,20 @@ This course is neither a pure metatheory course nor a Lean tutorial. Lean is our
 vehicle, not an end in itself.
 
 
-## A View of Lean
+# LoVe Demo 1: Definitions and Statements
+
+We introduce the basics of Lean and proof assistants, without trying to carry
+out actual proofs yet. We focus on specifying objects and statements of their
+intended properties. -/
+
+
+set_option pp.beta true
+set_option pp.generalized_field_notation false
+
+namespace LoVe
+
+
+/- ## A View of Lean
 
 In a first approximation:
 
