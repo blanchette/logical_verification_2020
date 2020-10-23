@@ -27,7 +27,13 @@ This does not include the "Install our Logical Verification Repository" step.
 * Start the newly installed `Git Bash` by searching for it in the Windows
   search bar.
 
-* In Git Bash, run the command `curl https://raw.githubusercontent.com/Kha/elan/master/elan-init.sh -sSf | sh`.
+* In Git Bash, run this command:
+
+  ```bash
+  curl https://raw.githubusercontent.com/Kha/elan/master/elan-init.sh -sSf | sh
+  ```
+
+  You may get an error about not being able to download the 'stable' toolchain, which you can ignore.
 
 * Press `[Enter]` to proceed with the installation.
 
@@ -97,12 +103,6 @@ This does not include the "Install our Logical Verification Repository" step.
   * If you're using `git bash`, press `ctrl-shift-p` to open the command palette, and type
     `Select Default Shell`, then select `git bash` from the menu.
 
-* Restart VS Code.
-
-* Verify Lean is working, for example by saving a file `test.lean` and entering `#eval 1+1`.
-  A green line should appear underneath `#eval 1+1`, and hovering the mouse over it you should see `2`
-  displayed.
-
 
 ### Install Our Logical Verification Repository
 
@@ -156,6 +156,8 @@ not including the Logical Verification repository details.
   ```bash
   wget -q https://raw.githubusercontent.com/leanprover-community/mathlib-tools/master/scripts/install_debian.sh && bash install_debian.sh ; rm -f install_debian.sh && source ~/.profile
   ```
+
+  You may get an error about not being able to download the 'stable' toolchain, which you can ignore.
 
 * You may have to log out and log in again to make sure that the `lean` command
   is on your `PATH`.
@@ -218,6 +220,8 @@ not including the Logical Verification repository details.
   ```bash
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/leanprover-community/mathlib-tools/master/scripts/install_macos.sh)" && source ~/.profile
   ```
+
+  You may get an error about not being able to download the 'stable' toolchain, which you can ignore.
 
 
 ### Install our Logical Verification Repository
