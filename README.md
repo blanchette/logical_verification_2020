@@ -82,25 +82,26 @@ This does not include the "Install our Logical Verification Repository" step.
 
 ### Install and Configure the Editor
 
-1. Install [VS Code](https://code.visualstudio.com/).
+* Install [VS Code](https://code.visualstudio.com/).
 
-2. Launch VS Code.
+* Launch VS Code.
 
-3. Click on the extension icon ![(image of icon)](img/new-extensions-icon.png)
-   (or ![(image of icon)](img/extensions-icon.png) in older versions) in the side bar on the left edge of
-   the screen (or press <kbd>Shift</kbd><kbd>Ctrl</kbd><kbd>X</kbd>) and search for `leanprover`.
+* Click on the extension icon ![(image of icon)](img/new-extensions-icon.png)
+  (or ![(image of icon)](img/extensions-icon.png) in older versions) in the side bar on the left edge of
+  the screen (or press <kbd>Shift</kbd><kbd>Ctrl</kbd><kbd>X</kbd>) and search for `leanprover`.
 
-4. Click "install" (In old versions of VS Code, you might need to click "reload" afterwards)
+* Click "install" (In old versions of VS Code, you might need to click "reload" afterwards)
 
-5. Setup the default shell:
+* Setup the default shell:
+
   * If you're using `git bash`, press `ctrl-shift-p` to open the command palette, and type
     `Select Default Shell`, then select `git bash` from the menu.
 
-6. Restart VS Code.
+* Restart VS Code.
 
-7. Verify Lean is working, for example by saving a file `test.lean` and entering `#eval 1+1`.
-   A green line should appear underneath `#eval 1+1`, and hovering the mouse over it you should see `2`
-   displayed.
+* Verify Lean is working, for example by saving a file `test.lean` and entering `#eval 1+1`.
+  A green line should appear underneath `#eval 1+1`, and hovering the mouse over it you should see `2`
+  displayed.
 
 
 ### Install Our Logical Verification Repository
