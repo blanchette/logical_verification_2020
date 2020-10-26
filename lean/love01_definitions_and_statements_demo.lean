@@ -166,7 +166,8 @@ Some type constructors `T` are written infix, e.g., `→` (function type).
 The function arrow is right-associative:
 `σ₁ → σ₂ → σ₃ → τ` = `σ₁ → (σ₂ → (σ₃ → τ))`.
 
-In Lean, type variables must be bound using `∀`, e.g., `∀α, α → α`.
+Polymorphic types are also possible. In Lean, the type variables must be bound
+using `∀`, e.g., `∀α, α → α`.
 
 Terms `t`, `u`:
 
@@ -368,7 +369,7 @@ def append (α : Type) : list α → list α → list α
 
     `[]`          := `nil`
     `x :: xs`     := `cons x xs`
-    `[x₁, …, xN]` := `x₁ :: … :: xN` -/
+    `[x₁, …, xN]` := `x₁ :: … :: xN :: []` -/
 
 def append₂ {α : Type} : list α → list α → list α
 | list.nil         ys := ys
