@@ -34,6 +34,7 @@ begin
   apply ha
 end
 
+
 /- ## Basic Tactics
 
 `intro`(`s`) moves `∀`-quantified variables, or the assumptions of
@@ -187,9 +188,9 @@ lemma or_swap (a b : Prop) :
 begin
   intros hab,
   apply or.elim hab,
-  { intros ha,
+  { intro ha,
     exact or.intro_right _ ha },
-  { intros hb,
+  { intro hb,
     exact or.intro_left _ hb }
 end
 
@@ -270,7 +271,6 @@ begin
   rw not_def,
   rw not_def,
   intro ha,
-  apply not.intro,
   intro hna,
   apply hna,
   exact ha

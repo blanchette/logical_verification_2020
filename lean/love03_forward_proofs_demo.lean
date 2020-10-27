@@ -248,7 +248,7 @@ between 0 and `n`. Conceptually, `pick` has a dependent type, namely
 We can think of this type as a `ℕ`-indexed family, where each member's type may
 depend on the index:
 
-    `pick n : {i : ℕ // n ≤ x}`
+    `pick n : {i : ℕ // i ≤ n}`
 
 But a type may also depend on another type, e.g., `list` (or `λα, list α`) and
 `λα, α → α`.
@@ -396,10 +396,8 @@ lemma reverse_append₂ {α : Type} (xs ys : list α) :
   reverse (xs ++ ys) = reverse ys ++ reverse xs :=
 begin
   induction' xs,
-  case list.nil {
-    simp [reverse] },
-  case list.cons : x xs ih {
-    simp [reverse, ih] }
+  { simp [reverse] },
+  { simp [reverse, ih] }
 end
 
 lemma reverse_reverse {α : Type} :
