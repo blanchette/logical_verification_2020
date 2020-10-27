@@ -282,7 +282,6 @@ inductive empty : Type
 #check (1 : ℕ)
 #check (1 : ℤ)
 #check (1 : ℝ)
-#check (1 : linear_map _ _ _)
 
 /- We encountered these type classes in lecture 2: -/
 
