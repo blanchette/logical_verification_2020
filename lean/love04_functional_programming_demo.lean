@@ -203,8 +203,8 @@ def shuffle (c : rgb) : rgb :=
 
 /- `cases'` performs a case distinction on the specified term. This gives rise
 to as many subgoals as there are constructors in the definition of the term's
-type. The tactic behaves the same as `induction` except that it does not produce
-induction hypotheses. -/
+type. The tactic behaves the same as `induction'` except that it does not
+produce induction hypotheses. -/
 
 lemma shuffle_shuffle_shuffle (c : rgb) :
   shuffle (shuffle (shuffle c)) = c :=
