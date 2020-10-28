@@ -183,19 +183,19 @@ lemma setoid_inv {a a' : fraction} (ha : a ≈ a') :
   a⁻¹ ≈ a'⁻¹ :=
 begin
   cases' classical.em (num a = 0),
-  case or.inl : ha0 {
+  case inl : ha0 {
     cases' classical.em (num a' = 0),
-    case or.inl : ha'0 {
+    case inl : ha'0 {
       simp [ha0, ha'0, inv_zero] },
-    case or.inr : ha'0 {
+    case inr : ha'0 {
       simp [ha0, ha'0, setoid_iff, denom_ne_zero] at ha,
       cc } },
-  case or.inr : ha0 {
+  case inr : ha0 {
     cases' classical.em (num a' = 0),
-    case or.inl : ha'0 {
+    case inl : ha'0 {
       simp [setoid_iff, ha'0, denom_ne_zero] at ha,
       cc },
-    case or.inr : ha'0 {
+    case inr : ha'0 {
       simp [setoid_iff, ha0, ha'0] at ha ⊢,
       cc } }
 end

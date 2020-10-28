@@ -45,7 +45,7 @@ constructors, `even.zero` and `even.add_two`, which can be used to build proof
 terms. Thanks to the "no junk" guarantee of inductive definitions, `even.zero`
 and `even.add_two` are the only two ways to construct proofs of `even`.
 
-By the Curry–Howard correspondence, `even` can be seen as a data type, the
+By the Curry–Howard correspondence, `even` can be seen as an inductive type, the
 values being the proof terms. -/
 
 lemma even_4 :
@@ -208,9 +208,9 @@ lemma mod_two_eq_zero_of_even (n : ℕ) (h : even n) :
   n % 2 = 0 :=
 begin
   induction' h,
-  case even.zero {
+  case zero {
     refl },
-  case even.add_two : k hk ih {
+  case add_two : k hk ih {
     simp [ih] }
 end
 
@@ -243,11 +243,11 @@ begin
   apply iff.intro,
   { intro h,
     induction' h,
-    case star.base : a b hab {
+    case base : a b hab {
       exact hab },
-    case star.refl : a {
+    case refl : a {
       apply star.refl },
-    case star.trans : a b c hab hbc ihab ihbc {
+    case trans : a b c hab hbc ihab ihbc {
       apply star.trans a b,
       { exact ihab },
       { exact ihbc } } },
@@ -310,9 +310,9 @@ begin
   have h : p a ∨ ¬ p a :=
     classical.em (p a),
   cases' h,
-  case or.inl {
+  case inl {
     sorry },
-  case or.inr {
+  case inr {
     sorry }
 end
 
@@ -335,17 +335,17 @@ begin
   apply iff.intro,
   { intro hn,
     cases' hn,
-    case even.zero {
+    case zero {
       simp },
-    case even.add_two : k hk {
+    case add_two : k hk {
       apply or.intro_right,
       apply exists.intro k,
       simp [hk] } },
   { intro hor,
     cases' hor,
-    case or.inl : heq {
+    case inl : heq {
       simp [heq, even.zero] },
-    case or.inr : hex {
+    case inr : hex {
       cases' hex with k hand,
       cases' hand with heq hk,
       simp [heq, even.add_two _ hk] } }

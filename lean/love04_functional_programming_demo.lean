@@ -77,9 +77,9 @@ lemma nat.succ_neq_self₂ (n : ℕ) :
   nat.succ n ≠ n :=
 begin
   induction' n,
-  case nat.succ : m IH {
+  case succ : m IH {
     simp [IH] },
-  case nat.zero {
+  case zero {
     simp }
 end
 
@@ -328,9 +328,9 @@ lemma map_ident {α : Type} (xs : list α) :
   map (λx, x) xs = xs :=
 begin
   induction' xs,
-  case list.nil {
+  case nil {
     refl },
-  case list.cons : y ys {
+  case cons : y ys {
     simp [map, ih] }
 end
 
@@ -339,9 +339,9 @@ lemma map_comp {α β γ : Type} (f : α → β) (g : β → γ)
   map g (map f xs) = map (λx, g (f x)) xs :=
 begin
   induction' xs,
-  case list.nil {
+  case nil {
     refl },
-  case list.cons : y ys {
+  case cons : y ys {
     simp [map, ih] }
 end
 
@@ -349,9 +349,9 @@ lemma map_append {α β : Type} (f : α → β) (xs ys : list α) :
   map f (xs ++ ys) = map f xs ++ map f ys :=
 begin
   induction' xs,
-  case list.nil {
+  case nil {
     refl },
-  case list.cons : y ys {
+  case cons : y ys {
     simp [map, ih] }
 end
 
@@ -397,9 +397,9 @@ lemma min_add_add (l m n : ℕ) :
   min (m + l) (n + l) = min m n + l :=
 begin
   cases' classical.em (m ≤ n),
-  case or.inl {
+  case inl {
     simp [min, h] },
-  case or.inr {
+  case inr {
     simp [min, h] }
 end
 
@@ -421,13 +421,13 @@ lemma length_zip {α β : Type} (xs : list α) (ys : list β) :
   length (zip xs ys) = min (length xs) (length ys) :=
 begin
   induction' xs,
-  case list.nil {
+  case nil {
     refl },
-  case list.cons : x xs' {
+  case cons : x xs' {
     cases' ys,
-    case list.nil {
+    case nil {
       refl },
-    case list.cons : y ys' {
+    case cons : y ys' {
       simp [zip, length, ih ys', min_add_add] } }
 end
 
@@ -472,9 +472,9 @@ lemma mirror_mirror {α : Type} (t : btree α) :
   mirror (mirror t) = t :=
 begin
   induction' t,
-  case btree.empty {
+  case empty {
     refl },
-  case btree.node : a l r ih_l ih_r {
+  case node : a l r ih_l ih_r {
     simp [mirror, ih_l, ih_r] }
 end
 

@@ -12,7 +12,7 @@ namespace LoVe
 
 /- ## Question 1: Type Classes
 
-Recall the datatype `btree` we introduced earlier: -/
+Recall the inductive type `btree` we introduced earlier: -/
 
 #check btree
 

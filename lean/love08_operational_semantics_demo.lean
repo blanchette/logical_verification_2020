@@ -317,12 +317,12 @@ begin
       cc } },
   { intro h,
     cases' h,
-    case or.inl {
+    case inl {
       cases' h with t h,
       cases' h with hb h,
       cases' h with hS hwhile,
       exact big_step.while_true hb hS hwhile },
-    case or.inr {
+    case inr {
       cases' h with hb hus,
       rw hus,
       exact big_step.while_false hb } }
