@@ -389,9 +389,7 @@ def length {α : Type} : list α → ℕ
 
 /- `cases'` can also be used to perform a case distinction on a proposition, in
 conjunction with `classical.em`. Two cases emerge: one in which the proposition
-is true and one in which it is false.
-
-Also notice the `have` tactic below. We will come back to it. -/
+is true and one in which it is false. -/
 
 #check classical.em
 
