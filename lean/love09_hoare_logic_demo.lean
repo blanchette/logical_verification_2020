@@ -112,13 +112,13 @@ The following is a complete set of rules for reasoning about WHILE programs:
     —————————————————————— Seq
     {P} S; S' {Q}
 
-    {I ∧ b} S {Q}   {I ∧ ¬b} S' {Q}
+    {P ∧ b} S {Q}   {P ∧ ¬b} S' {Q}
     ——————————————————————————————— If
-    {I} if b then S else S' {Q}
+    {P} if b then S else S' {Q}
 
-    {P ∧ b} S {P}
+    {I ∧ b} S {I}
     ————————————————————————— While
-    {P} while b do S {P ∧ ¬b}
+    {I} while b do S {I ∧ ¬b}
 
     P' → P   {P} S {Q}   Q → Q'
     ——————————————————————————— Conseq
@@ -230,7 +230,8 @@ begin
   case while_true {
     apply ih_hst_1 P h,
     exact h _ _ (and.intro hs hcond) hst },
-  { exact and.intro hs hcond }
+  case while_false {
+    exact and.intro hs hcond }
 end
 
 lemma consequence {P P' Q Q' : state → Prop} {S}
@@ -475,8 +476,8 @@ have the form
 
 Intended meaning:
 
-    If the `P` holds before `S` is executed, the execution terminates normally
-    and `Q` holds in the final state.
+    If `P` holds before `S` is executed, the execution terminates normally and
+    `Q` holds in the final state.
 
 For deterministic programs, an equivalent formulation is as follows:
 
