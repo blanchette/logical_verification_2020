@@ -132,21 +132,21 @@ Derivation rules:
     ——————————————————————————— Asn
     (x := a, s) ⟹ s[x ↦ s(a)]
 
-    (S, s) ⟹ s'   (S', s') ⟹ s''
-    ——————————————————————————————— Seq
-    (S; S', s) ⟹ s''
+    (S, s) ⟹ t   (T, t) ⟹ u
+    ——————————————————————————— Seq
+    (S; T, s) ⟹ u
 
-    (S, s) ⟹ s'
-    ——————————————————————————————— If-True   if s(b) is true
-    (if b then S else S', s) ⟹ s'
+    (S, s) ⟹ t
+    ————————————————————————————— If-True   if s(b) is true
+    (if b then S else T, s) ⟹ t
 
-    (S', s) ⟹ s'
-    ——————————————————————————————— If-False   if s(b) is false
-    (if b then S else S', s) ⟹ s'
+    (T, s) ⟹ t
+    ————————————————————————————— If-False   if s(b) is false
+    (if b then S else T, s) ⟹ t
 
-    (S, s) ⟹ s'   (while b do S, s') ⟹ s''
-    —————————————————————————————————————————— While-True   if s(b) is true
-    (while b do S, s) ⟹ s''
+    (S, s) ⟹ t   (while b do S, t) ⟹ u
+    —————————————————————————————————————— While-True   if s(b) is true
+    (while b do S, s) ⟹ u
 
     ————————————————————————— While-False   if s(b) is false
     (while b do S, s) ⟹ s
@@ -198,10 +198,10 @@ lemma big_step_deterministic {S s l r} (hl : (S, s) ⟹ l)
   l = r :=
 begin
   induction' hl,
-  case skip : t {
+  case skip {
     cases' hr,
     refl },
-  case assign : x a s {
+  case assign {
     cases' hr,
     refl },
   case seq : S T s t l hS hT ihS ihT {
@@ -211,16 +211,12 @@ begin
     refl },
   case ite_true : b S T s t hb hS ih {
     cases' hr,
-    { apply ih,
-      assumption },
-    { apply ih,
-      cc } },
+    { apply ih hr },
+    { cc } },
   case ite_false : b S T s t hb hT ih {
     cases' hr,
-    { apply ih,
-      cc },
-    { apply ih,
-      assumption } },
+    { cc },
+    { apply ih hr } },
   case while_true : b S s t u hb hS hw ihS ihw {
     cases' hr,
     { cases' ihS hr,
@@ -246,6 +242,8 @@ begin
   case while_false {
     cc }
 end
+
+/- We can define inversion rules about the big-step semantics: -/
 
 @[simp] lemma big_step_skip_iff {s t} :
   (stmt.skip, s) ⟹ t ↔ t = s :=
@@ -374,19 +372,19 @@ Derivation rules:
     (x := a, s) ⇒ (skip, s[x ↦ s(a)])
 
     (S, s) ⇒ (S', s')
-    ———————————————————————— Seq-Step
-    (S; T, s) ⇒ (S' ; T, s')
+    ———-————————————————————— Seq-Step
+    (S ; T, s) ⇒ (S' ; T, s')
 
     —————————————————————— Seq-Skip
     (skip ; S, s) ⇒ (S, s)
 
-    ————————————————————————————————— If-True   if s(b) is true
-    (if b then S else S', s) ⇒ (S, s)
+    ———————————————————————————————— If-True   if s(b) is true
+    (if b then S else T, s) ⇒ (S, s)
 
-    —————————————————————————————————— If-False   if s(b) is false
-    (if b then S else S', s) ⇒ (S', s)
+    ———————————————————————————————— If-False   if s(b) is false
+    (if b then S else T, s) ⇒ (T, s)
 
-    ————————————————————————————————————————————————————————————————— While
+    ——————————————————————————————————————————————————————————————— While
     (while b do S, s) ⇒ (if b then (S ; while b do S) else skip, s)
 
 There is no rule for `skip` (why?). -/
@@ -409,11 +407,10 @@ inductive small_step : stmt × state → stmt × state → Prop
 infixr ` ⇒ ` := small_step
 infixr ` ⇒* ` : 100 := star small_step
 
-
 /- Equipped with a small-step semantics, we can **define** a big-step
 semantics:
 
-> `(S, s) ⟹ s'` if and only if `(S, s) ⇒* (skip, s')`
+    `(S, s) ⟹ t` if and only if `(S, s) ⇒* (skip, t)`
 
 where `r*` denotes the reflexive transitive closure of a relation `r`.
 

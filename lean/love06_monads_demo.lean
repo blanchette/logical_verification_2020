@@ -180,30 +180,30 @@ called the monad laws. Pure data as the first program can be simplified away:
 Pure data as the second program can be simplified away:
 
     do
-      a ← x,
+      a ← ma,
       pure a
   =
-    x
+    ma
 
-Nested programs `x`, `f`, `g` can be flattened using this associativity rule:
+Nested programs `ma`, `f`, `g` can be flattened using this associativity rule:
 
     do
       b ← do {
-        a ← x,
+        a ← ma,
         f a },
       g b
   =
     do
-      a ← x,
+      a ← ma,
       b ← f a,
       g b
 
 
 ## A Type Class of Monads
 
-Monads are a mathematical structure, so we use class to add them as a type class
-(lecture 12). We can think of a type class as a structure that is parameterized
-by a type—or here, by a type constructor `m : Type → Type`. -/
+Monads are a mathematical structure, so we use class to add them as a type
+class. We can think of a type class as a structure that is parameterized by a
+type—or here, by a type constructor `m : Type → Type`. -/
 
 @[class] structure lawful_monad (m : Type → Type)
   extends has_bind m, has_pure m :=
@@ -236,7 +236,7 @@ proofs of the monad laws.
 (Lean's actual definition of monads is more complicated.)
 
 
-## Identity -/
+## No Effects -/
 
 def id.pure {α : Type} : α → id α :=
 id
@@ -244,7 +244,7 @@ id
 def id.bind {α β : Type} : id α → (α → id β) → id β
 | a f := f a
 
-@[instance] def id.lawful_monad : lawful_monad (@id Type) :=
+@[instance] def id.lawful_monad : lawful_monad id :=
 { pure       := @id.pure,
   bind       := @id.bind,
   pure_bind  :=
@@ -254,12 +254,12 @@ def id.bind {α β : Type} : id α → (α → id β) → id β
     end,
   bind_pure  :=
     begin
-      intros α m,
+      intros α ma,
       refl
     end,
   bind_assoc :=
     begin
-      intros α β γ f g m,
+      intros α β γ f g ma,
       refl
     end }
 
@@ -284,15 +284,15 @@ def option.bind {α β : Type} :
     end,
   bind_pure  :=
     begin
-      intros α m,
-      cases' m,
+      intros α ma,
+      cases' ma,
       { refl },
       { refl }
     end,
   bind_assoc :=
     begin
-      intros α β γ f g m,
-      cases' m,
+      intros α β γ f g ma,
+      cases' ma,
       { refl },
       { refl }
     end }
@@ -344,20 +344,20 @@ def action.bind {σ : Type} {α β : Type} (ma : action σ α)
     end,
   bind_pure  :=
     begin
-      intros α m,
+      intros α ma,
       apply funext,
       intro s,
       simp [action.bind],
-      cases' m s,
+      cases' ma s,
       refl
     end,
   bind_assoc :=
     begin
-      intros α β γ f g m,
+      intros α β γ f g ma,
       apply funext,
       intro s,
       simp [action.bind],
-      cases' m s,
+      cases' ma s,
       refl
     end }
 
@@ -398,12 +398,12 @@ def set.bind {α β : Type} : set α → (α → set β) → set β
     end,
   bind_pure  :=
     begin
-      intros α m,
+      intros α ma,
       simp [set.pure, set.bind]
     end,
   bind_assoc :=
     begin
-      intros α β γ f g m,
+      intros α β γ f g ma,
       simp [set.pure, set.bind],
       apply set.ext,
       simp,
