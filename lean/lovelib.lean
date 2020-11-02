@@ -12,7 +12,7 @@ import tactic.tidy
 import tactic.where
 
 
-/-! # LoVe Library
+/- # LoVe Library
 
 This files contains a few extensions on top of Lean's core libraries and
 `mathlib`. -/
@@ -21,12 +21,12 @@ This files contains a few extensions on top of Lean's core libraries and
 namespace LoVe
 
 
-/-! ## Structured Proofs -/
+/- ## Structured Proofs -/
 
 notation `fix ` binders `, ` r:(scoped f, f) := r
 
 
-/-! ## Logical Connectives -/
+/- ## Logical Connectives -/
 
 attribute [pattern] or.intro_left or.intro_right
 
@@ -70,12 +70,12 @@ iff.intro
 iff.intro (assume ⟨a, f⟩, f) (assume h, h.elim)
 
 
-/-! ## Natural Numbers -/
+/- ## Natural Numbers -/
 
 attribute [simp] nat.add
 
 
-/-! ## Integers -/
+/- ## Integers -/
 
 @[simp] lemma int.neg_comp_neg :
   int.neg ∘ int.neg = id :=
@@ -85,7 +85,7 @@ begin
 end
 
 
-/-! ## Reflexive Transitive Closure -/
+/- ## Reflexive Transitive Closure -/
 
 namespace rtc
 
@@ -130,9 +130,9 @@ lemma head_induction_on {α : Sort*} {r : α → α → Prop} {b : α}
   P a h :=
 begin
   induction' h,
-  case star.refl {
+  case refl {
     exact refl },
-  case star.tail : b c hab hbc ih {
+  case tail : b c hab hbc ih {
     apply ih,
     show P b _, from
       head hbc _ refl,
@@ -148,9 +148,9 @@ lemma trans_induction_on {α : Sort*} {r : α → α → Prop}
   p h :=
 begin
   induction' h,
-  case star.refl {
+  case refl {
     exact ih₁ a },
-  case star.tail : b c hab hbc ih {
+  case tail : b c hab hbc ih {
     exact ih₃ hab (single hbc) (ih ih₁ @ih₂ @ih₃) (ih₂ hbc) }
 end
 
@@ -190,7 +190,7 @@ end rtc
 export rtc
 
 
-/-! ## States -/
+/- ## States -/
 
 def state :=
 string → ℕ
@@ -254,7 +254,7 @@ example (s : state) :
 by simp
 
 
-/-! ## Relations -/
+/- ## Relations -/
 
 def Id {α : Type} : set (α × α) :=
 {ab | prod.snd ab = prod.fst ab}
