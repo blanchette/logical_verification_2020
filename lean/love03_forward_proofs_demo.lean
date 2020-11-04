@@ -63,8 +63,7 @@ lemma fst_of_two_props₃ (a b : Prop) (ha : a) (hb : b) :
   a :=
 ha
 
-/- `have` proves an intermediate lemma, which can refer to the local
-context. -/
+/- `have` proves an intermediate lemma, which can refer to the local context. -/
 
 lemma prop_comp (a b c : Prop) (hab : a → b) (hbc : b → c) :
   a → c :=
