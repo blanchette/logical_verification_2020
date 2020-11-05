@@ -54,8 +54,8 @@ lemma accufact_1_eq_fact (n : ℕ) :
   accufact 1 n = fact n :=
 sorry
 
-/- 2.2 (2 points). Prove the following lemma, this time as a "paper" proof.
-Follow the guidelines given in question 1.4 of the exercise. -/
+/- 2.2 (2 points). Prove the same property as above again, this time as a
+"paper" proof. Follow the guidelines given in question 1.4 of the exercise. -/
 
 -- enter your paper proof here
 
